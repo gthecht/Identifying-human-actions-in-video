@@ -1,0 +1,8 @@
+# This is git ignore file.
+
+# Temp files:
+*.asv
+
+#powerpoints:
+*.pptx
+*.ppt
