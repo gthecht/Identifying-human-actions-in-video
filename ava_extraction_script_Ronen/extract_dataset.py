@@ -43,7 +43,7 @@ for ii in range(N):
     stream = yt.streams.first()
     stream.download()
     os.rename(vidName, vidNewName)
-    print "finished download video %d out of %d" % (ii, N)
+    print "finished download video %d out of %d" % (ii+1, N)
 
 
 """

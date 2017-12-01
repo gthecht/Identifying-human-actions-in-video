@@ -2,12 +2,6 @@
 % trying to extract the segments from the videos for training:
 clear; clc;
 %% reading csv file into trainTable:
-% goin to directory:
-prompt={'Enter data directory'};
-dir_title  = 'data';
-src_cell   = inputdlg(prompt,dir_title);
-dat_dir    = src_cell{1};
-cd(dat_dir);
 % make sure you are in the directory with the csv file.
 csvID = fopen('ava_train_v1.0.csv');
 avaTrain = textscan(csvID,'%s %f %f %f %f %f %f', 'Delimiter', ',');
@@ -26,15 +20,11 @@ for ii = 1 : len
     SegStr{ii} = [segCell{ii}{1},'_t=', num2str(trainTable.middleFrameTimeStamp(ii))];
 end
 % Create unique:
-[~, uniqIndx, ~] = unique(SegStr);
+[uniqStr, uniqIndx, ~] = unique(SegStr);
 uniqIndx = sort(uniqIndx);
-uniqStr = SegStr(uniqIndx);
 uniqSegs = segCell(uniqIndx);
 
 %% videoFileReader:
-%% entering the 'edited_EEG_data' directory
-% example in Gilad's:   E:\Project2\videos
-% Gilad's onedrive:     C:\Users\User\OneDrive - Technion\Courses\Project2\vidDatabase\videos
 prompt={'Enter video directory'};
 dir_title  = 'data';
 src_cell   = inputdlg(prompt,dir_title);
@@ -45,16 +35,11 @@ vids       = struct2cell(dir);
 vids       = vids(1,:)';
 uniqIDs    = cellfun(@(X) [X{1},'.mp4'], uniqSegs, 'UniformOutput', false);
 memberSeg  = uniqSegs(ismember(uniqIDs, vids));
-memberStr  = uniqStr(ismember(uniqIDs, vids));
+
 mkdir('../segmentsDatabase'); %% places the segments in a directory right beside the whole videos.
-existsegs  = struct2cell(dir('../segmentsDatabase'));
-existsegs  = existsegs(1,:)';
 %% extracting vids
-parfor ii = 1: length(memberSeg)
+for ii = 1: length(memberSeg)
 % parfor ii = prev_ii: length(memberSeg)  % just so I won't overlap!
-    if ismember([memberStr{ii}, '.mp4'], existsegs)
-        continue
-    end
     vidName  = [memberSeg{ii}{1}, '.mp4'];
     startT   = memberSeg{ii}{2};
     stopT    = memberSeg{ii}{3};
@@ -62,7 +47,7 @@ parfor ii = 1: length(memberSeg)
     VR.CurrentTime = startT;
     N = ceil(3 * VR.FrameRate);
 %     VP = vision.VideoPlayer;
-    FileName = ['../segmentsDatabase/', memberStr{ii}, '.mp4'];
+    FileName = ['../segmentsDatabase/', SegStr{ii}, '.mp4'];
     writeVid = VideoWriter(FileName, 'MPEG-4');
     open(writeVid);
     n = 1;
