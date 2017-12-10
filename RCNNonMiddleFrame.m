@@ -6,69 +6,122 @@ load uniqueSegmentsIndex; % the indices of the unique segments in the trainTable
 %% extract images (plus resize):
 % for now we only want the ones with a pose that is:
 % stand = 12, sit = 11, walk = 14
-labels = [12, 11, 14];
+labels = [11; 12; 14];
+labelsName = {'sit'; 'stand'; 'walk'};
 poseTable = trainTable(find(ismember(trainTable.actionLabel, labels)),:);
 imNames = cell(length(poseTable.videoID), 1);
 for ii = 1:length(poseTable.videoID)
     imNames{ii} = [poseTable.videoID{ii}, '_t=', num2str(poseTable.middleFrameTimeStamp(ii)), '_MiddleFrame.jpg'];
 end
-uniqNames = unique(imNames);
+uniqNames = unique(imNames, 'stable');
 %% dataTable:
-N = cell(length(uniqNames),1);
-labelsTable = table(uniqNames,N ,N ,N);
-labelsTable.Properties.VariableNames = {'names', 'sit', 'stand', 'walk'};
-%% divide iunto train and test:
+load LabelsTable11_12_14
+
+imsize = [227 227];
+emptyCell = cell(length(uniqNames),1);
+% labelsTable = table(uniqNames,emptyCell ,emptyCell ,emptyCell);
+% labelsTable.Properties.VariableNames = {'names', 'sit', 'stand', 'walk'};
+% for ii = 1:length(uniqNames)
+%     currName = uniqNames{ii};
+%     segIndx  = find(ismember(imNames, currName));
+%     currBox  = poseTable(segIndx, 3:6);
+%     currLab  = poseTable(segIndx, 7);
+% %     sit = 11
+%     for jj = 1:length(labels)
+%         Label   = find(ismember(currLab.actionLabel, labels(jj)));
+%         if ~isempty(Label)
+%             x1 = currBox.topLeft_x(Label);
+%             y1 = currBox.topLeft_y(Label);
+%             x2 = currBox.bottomRight_x(Label);
+%             y2 = currBox.bottomRight_y(Label);
+%             BBox = floor([x1 * imsize(1), y1 * imsize(2),...
+%                 (x2 - x1) * imsize(1), (y2 - y1) * imsize(2)]);
+%             BBox(BBox < 1) = 1;
+%             if jj == 1
+%                 labelsTable.sit(ii)   = {BBox};
+%             elseif jj == 2
+%                 labelsTable.stand(ii) = {BBox};
+%             elseif jj == 3
+%                 labelsTable.walk(ii)  = {BBox};
+%             end
+%         end
+%     end
+% end
+
+% Now we want to find the ones we have in the MiddleFrames dataset:
+disp('     --finished loading table.');
+
+%% loading existing dataset:
+prompt={'Enter MiddleFrame directory'};
+dir_title  = 'MiddleFrames';
+src_cell   = inputdlg(prompt,dir_title);
+src_dir    = src_cell{1};
+cd(src_dir);
+frames = struct2cell(dir);
+frames = frames(1,:)';
+
+existIndx  = find(ismember(uniqNames, frames));
+existTable = labelsTable(existIndx,:);
+
+FrameDatasetPath = fullfile(cd);
+FrameData = imageDatastore(FrameDatasetPath,...
+    'IncludeSubfolders',true,'LabelSource','foldernames');
+for ii = 1:length(existTable.names)
+    existTable.names{ii} = [FrameDatasetPath,'\', existTable.names{ii}];
+end
+disp('     --finished loading dataset.');
+%% divide into train and test:
+dataPerm = randperm(length(existTable.names));
+trainTable = existTable(dataPerm(1 : 3500),:); % note that this is a constant number - will change later.
+testTable  = existTable(dataPerm(3501 : end),:); % note that this is a constant number - will change later.
+
+% figure(1); hold on;
+% imgPerm = randperm(length(testTable.names),20);
+% for kk = 1:20
+%     subplot(4,5,kk);
+%     imshow(testTable.Names{imgPerm(kk)});
+% end
+% title('images from our dataset');
+% hold off;
 %% load alexnet:
+alex = alexnet; 
+
+% Review Network Architecture 
+layers = alex.Layers 
+
+% Modify Pre-trained Network 
+% AlexNet was trained to recognize 1000 classes, we need to modify it to
+% recognize just 3 classes. 
+layers(23) = fullyConnectedLayer(4); % change this based on # of classes + background
+layers(25) = classificationLayer()
+
+disp('     --finished loading alexnet.');
 %% train:
+options = trainingOptions('sgdm', ...
+    'InitialLearnRate', 1e-6, ...
+    'MaxEpochs', 1, ...
+    'CheckpointPath', tempdir);
+
+fRCNNModl = trainFasterRCNNObjectDetector(trainTable, layers, options)
+disp('    --Finished training');
 %% test:
-%%
-figure(); imshow(midFrame);
-hold on;
-rectangle('Position',[50 50 150 150],'EdgeColor','y','linewidth',5)
-size_im = size(midFrame);
-%%
-pos = zeros(2,4);
-actStr = cell(2,1);
-for ii = 1:2
-    pos(ii,:) = floor([box(ii,1) * size_im(2), box(ii,2) * size_im(1), ...
-        (box(ii,3) - box(ii,1)) * size_im(2), (box(ii,4) - box(ii,2)) * size_im(1)]);
-    actStr{ii} = [act{ii}];
+nTest = length(testTable.names);
+bbox  = cell(nTest,1);
+score = cell(nTest,1);
+label = cell(nTest,1);
+for ii = nTest
+    img = testTable.names(ii);
+    [bbox{ii}, score{ii}, label{ii}] = detect(fRCNNModl, img);
 end
-im_anot = insertObjectAnnotation(midFrame, 'rectangle', pos, actStr,...
-                'Color', {'cyan', 'yellow'}, 'FontSize', 15, 'Linewidth', 2);
-imshow(im_anot);
 
-%%
-% loading a segment, and boxes, and depicting the box for the mid-frame.
-vidName = 'F3dPH6Xqf5M_t=1180.mp4';
-
-%       tlx    tly    brx    bry
-box = [0.291, 0.25, 0.441, 0.741;
-	   0.478, 0.286, 0.604, 0.762];
-dictionary = { '12 = stand'; '41 = play musical instrument'; '80 = watch (a person)'; ...
-    '11 = sit'; '74 = listen to (a person)'; '80 = watch (a person)'}; 
-act = {'12 + 41 + 80'; '11 + 74 + 80'};
-
-VR = VideoReader(vidName);
-VR.CurrentTime = 1.5;
-midFrame = readFrame(VR);
-%%
-figure(); imshow(midFrame);
-hold on;
-rectangle('Position',[50 50 150 150],'EdgeColor','y','linewidth',5)
-size_im = size(midFrame);
-%%
-pos = zeros(2,4);
-actStr = cell(2,1);
-for ii = 1:2
-    pos(ii,:) = floor([box(ii,1) * size_im(2), box(ii,2) * size_im(1), ...
-        (box(ii,3) - box(ii,1)) * size_im(2), (box(ii,4) - box(ii,2)) * size_im(1)]);
-    actStr{ii} = [act{ii}];
-end
-im_anot = insertObjectAnnotation(midFrame, 'rectangle', pos, actStr,...
-                'Color', {'cyan', 'yellow'}, 'FontSize', 18, 'Linewidth', 2);
-imshow(im_anot);
-
-
+% figure(2); hold on;
+% for kk = 1:20
+%     img = testTable.Files{imgPerm(kk)};
+%     detectedImg = insertShape(img, 'Rectangle', bbox{imgPerm(kk)});
+%     subplot(4,5,kk);
+%     imshow(detectedImg);
+% end
+% title('Now the same images with the recognized boxes')
+disp('     --finished testing.');
 
 
