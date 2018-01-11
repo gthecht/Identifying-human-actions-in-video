@@ -72,10 +72,9 @@ for ii = 1:length(existTable.names)
 end
 disp('     --finished loading dataset.');
 %% divide into train and test:
-dataLength = length(existTable.names);
-dataPerm = randperm(dataLength);
-trainTable = existTable(dataPerm(1 : round(0.8*dataLength)),:); % note that this is a constant number - will change later.
-testTable  = existTable(dataPerm(round(0.8*dataLength) + 1 : end),:); % note that this is a constant number - will change later.
+dataPerm = randperm(length(existTable.names));
+trainTable = existTable(dataPerm(1 : 3500),:); % note that this is a constant number - will change later.
+testTable  = existTable(dataPerm(3501 : end),:); % note that this is a constant number - will change later.
 
 figure(1); hold on;
 imgPerm = randperm(length(testTable.names),20);
@@ -83,21 +82,7 @@ for kk = 1:20
     subplot(4,5,kk);
     imshow(FrameData.ReadFcn(testTable.names{imgPerm(kk)}));
 end
-suptitle('images from our dataset');
-hold off;
-
-figure(2); hold on;
-for kk = 1:20
-    img = FrameData.ReadFcn(testTable.names{imgPerm(kk)});
-    pos = [testTable.sit{imgPerm(kk)} ; testTable.stand{imgPerm(kk)} ; testTable.walk{imgPerm(kk)}];
-    actStr = [''];
-    img = insertObjectAnnotation(img, 'rectangle', pos, actStr,...
-                'Color', {'cyan'}, 'FontSize', 12, 'Linewidth', 2);
-    subplot(4,5,kk);
-    imshow(img);
-%     title(testTable.names{imgPerm(kk)});
-end
-suptitle('images from our dataset');
+title('images from our dataset');
 hold off;
 %% load alexnet:
 alex = alexnet; 
@@ -115,7 +100,7 @@ disp('     --finished loading alexnet.');
 %% train:
 options = trainingOptions('sgdm', ...
     'InitialLearnRate', 1e-6, ...
-    'MaxEpochs', 3, ...
+    'MaxEpochs', 5, ...
     'CheckpointPath', tempdir);
 
 fRCNNModl = trainFasterRCNNObjectDetector(trainTable, layers, options)
@@ -131,7 +116,7 @@ for ii = nTest
 end
 testOutcome = table(bbox, score, label);
 testOutcome.Properties.VariableNames = {'bbox', 'score', 'label'};
-figure(3); hold on;
+figure(2); hold on;
 for kk = 1:20
     img = FrameData.ReadFcn(testTable.names{imgPerm(kk)});
     detectedImg = insertShape(img, 'Rectangle', bbox{imgPerm(kk)});
