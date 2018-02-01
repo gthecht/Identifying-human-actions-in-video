@@ -18,11 +18,11 @@ segPerm = segNames;
 mkdir('../MiddleFrames');
 existNames = struct2cell(dir('../MiddleFrames'));
 existNames = existNames(1,:)';
-size = [227,227];
-for ii = 1 : length(segNames)
+% size = [227,227];
+parfor ii = 1 : length(segNames)
     currName = [segPerm{ii}{1},'_MiddleFrame.jpg'];
     if ismember(currName, existNames)
         continue;
     end
-    ExtractMiddleFrame(segPerm{ii}{1}, size);
+    ExtractMiddleFrame(segPerm{ii}{1});
 end
