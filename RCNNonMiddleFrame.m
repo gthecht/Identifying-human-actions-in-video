@@ -3,7 +3,7 @@ clear; clc;
 %% loading train CSV:
 load trainTable; % in: 'Identifying-human-actions-in-video' folder
 load uniqueSegmentsIndex; % the indices of the unique segments in the trainTable
-%% extract images (plus resize):
+%% extract images :
 % for now we only want the ones with a pose that is:
 % stand = 12, sit = 11, walk = 14
 labels = [11; 12; 14];
@@ -17,36 +17,33 @@ uniqNames = unique(imNames, 'stable');
 %% dataTable:
 load LabelsTable11_12_14
 
-imsize = [227 227];
 emptyCell = cell(length(uniqNames),1);
-% labelsTable = table(uniqNames,emptyCell ,emptyCell ,emptyCell);
-% labelsTable.Properties.VariableNames = {'names', 'sit', 'stand', 'walk'};
-% for ii = 1:length(uniqNames)
-%     currName = uniqNames{ii};
-%     segIndx  = find(ismember(imNames, currName));
-%     currBox  = poseTable(segIndx, 3:6);
-%     currLab  = poseTable(segIndx, 7);
-% %     sit = 11
-%     for jj = 1:length(labels)
-%         Label   = find(ismember(currLab.actionLabel, labels(jj)));
-%         if ~isempty(Label)
-%             x1 = currBox.topLeft_x(Label);
-%             y1 = currBox.topLeft_y(Label);
-%             x2 = currBox.bottomRight_x(Label);
-%             y2 = currBox.bottomRight_y(Label);
-%             BBox = floor([x1 * imsize(1), y1 * imsize(2),...
-%                 (x2 - x1) * imsize(1), (y2 - y1) * imsize(2)]);
-%             BBox(BBox < 1) = 1;
-%             if jj == 1
-%                 labelsTable.sit(ii)   = {BBox};
-%             elseif jj == 2
-%                 labelsTable.stand(ii) = {BBox};
-%             elseif jj == 3
-%                 labelsTable.walk(ii)  = {BBox};
-%             end
-%         end
-%     end
-% end
+labelsTable = table(uniqNames,emptyCell ,emptyCell ,emptyCell);
+labelsTable.Properties.VariableNames = {'names', 'sit', 'stand', 'walk'};
+for ii = 1:length(uniqNames)
+    currName = uniqNames{ii};
+    segIndx  = find(ismember(imNames, currName));
+    currBox  = poseTable(segIndx, 3:6);
+    currLab  = poseTable(segIndx, 7);
+%     sit = 11
+    for jj = 1:length(labels)
+        Label   = find(ismember(currLab.actionLabel, labels(jj)));
+        if ~isempty(Label)
+            x1 = currBox.topLeft_x(Label);
+            y1 = currBox.topLeft_y(Label);
+            x2 = currBox.bottomRight_x(Label);
+            y2 = currBox.bottomRight_y(Label);
+            BBox = [x1, y1, (x2 - x1), (y2 - y1)];
+            if jj == 1
+                labelsTable.sit(ii)   = {BBox};
+            elseif jj == 2
+                labelsTable.stand(ii) = {BBox};
+            elseif jj == 3
+                labelsTable.walk(ii)  = {BBox};
+            end
+        end
+    end
+end
 
 % Now we want to find the ones we have in the MiddleFrames dataset:
 disp('     --finished loading table.');
@@ -56,7 +53,12 @@ disp('     --finished loading table.');
 % dir_title  = 'MiddleFrames';
 % src_cell   = inputdlg(prompt,dir_title);
 % src_dir    = src_cell{1};
-src_dir = 'Z:\MiddleFrames';
+hostName = getComputerName();
+if hostName == 'desktop-gloria'
+    src_dir = 'D:\Projects\Project2_AVA\MiddleFrames';
+else
+    src_dir = 'Z:\MiddleFrames';
+end
 cd(src_dir);
 frames = struct2cell(dir);
 frames = frames(1,:)';
@@ -83,13 +85,16 @@ for kk = 1:20
     subplot(4,5,kk);
     imshow(FrameData.ReadFcn(testTable.names{imgPerm(kk)}));
 end
-suptitle('images from our dataset');
+% suptitle(['images from our dataset']);
 hold off;
 
 figure(2); hold on;
 for kk = 1:20
     img = FrameData.ReadFcn(testTable.names{imgPerm(kk)});
-    pos = [testTable.sit{imgPerm(kk)} ; testTable.stand{imgPerm(kk)} ; testTable.walk{imgPerm(kk)}];
+    sze = size(img);
+    szeVec = [sze(1), sze(2), sze(1), sze(2)];
+    pos = [testTable.sit{imgPerm(kk)} * szeVec; testTable.stand{imgPerm(kk)}...
+                        * szeVec; testTable.walk{imgPerm(kk)} * szeVec];
     actStr = [''];
     img = insertObjectAnnotation(img, 'rectangle', pos, actStr,...
                 'Color', {'cyan'}, 'FontSize', 12, 'Linewidth', 2);
@@ -97,13 +102,13 @@ for kk = 1:20
     imshow(img);
 %     title(testTable.names{imgPerm(kk)});
 end
-suptitle('images from our dataset');
+% suptitle('images from our dataset');
 hold off;
 %% load alexnet:
 alex = alexnet; 
 
 % Review Network Architecture 
-layers = alex.Layers 
+layers = alex.Layers
 
 % Modify Pre-trained Network 
 % AlexNet was trained to recognize 1000 classes, we need to modify it to
