@@ -25,7 +25,7 @@ hold off;
 figure(2); hold on;
 for kk = 1:20
     img = FrameData.ReadFcn(testTable.names{imgPerm(kk)});
-    pos = [testTable.sit{imgPerm(kk)}; testTable.stand{imgPerm(kk)}; testTable.walk{imgPerm(kk)}];
+    pos = cell2mat([testTable{imgPerm(kk),2:end}]');
     actStr = [''];
     img = insertObjectAnnotation(img, 'rectangle', pos, actStr,...
                 'Color', {'cyan'}, 'FontSize', 12, 'Linewidth', 2);

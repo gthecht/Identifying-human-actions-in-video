@@ -57,15 +57,20 @@ switch choice
             pixFrame = [ImgSize(indx,2), ImgSize(indx,1), ImgSize(indx,2), ...
                             ImgSize(indx,1)]; % = [sizeX, sizeY, sizeX, sizeY]
             % if the cell in the table is empty, it won't allow to multiply.
-            if ~isempty(existTable(ii,:).sit{:})
-                existTable(ii,:).sit{:}   = round(existTable(ii,:).sit{:} .* pixFrame);
+            for jj = 1:length(labelsName)
+                 if ~isempty(existTable(ii,1+jj))
+                    existTable{ii,1+jj}{:} = round(existTable{ii,1+jj}{:}.*pixFrame);
+                 end
             end
-            if ~isempty(existTable(ii,:).stand{:})
-                existTable(ii,:).stand{:} = round(existTable(ii,:).stand{:} .* pixFrame);
-            end
-            if ~isempty(existTable(ii,:).walk{:})
-                existTable(ii,:).walk{:}  = round(existTable(ii,:).walk{:} .* pixFrame);
-            end
+%             if ~isempty(existTable(ii,:).sit{:})
+%                 existTable(ii,:).sit{:}   = round(existTable(ii,:).sit{:} .* pixFrame);
+%             end
+%             if ~isempty(existTable(ii,:).stand{:})
+%                 existTable(ii,:).stand{:} = round(existTable(ii,:).stand{:} .* pixFrame);
+%             end
+%             if ~isempty(existTable(ii,:).walk{:})
+%                 existTable(ii,:).walk{:}  = round(existTable(ii,:).walk{:} .* pixFrame);
+%             end
         end
         toc
         % lastly we want to ask if we should save this:

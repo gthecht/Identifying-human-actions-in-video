@@ -13,8 +13,8 @@ switch choice
         [FileName,PathName] = uigetfile('*.mat','Select your labelsTable');
         load([PathName,FileName]); % don't know what the warning here might be about.
     case 'No'
-        emptyCell = cell(length(uniqNames),1);
-        labelsTable = table(uniqNames,emptyCell ,emptyCell ,emptyCell);
+        emptyCell = cell(length(uniqNames),length(labelsName));
+        labelsTable = table(uniqNames,emptyCell);
         labelsTable.Properties.VariableNames = {'names', labelsName{:}}; % the variable names are the labels - for the RCNN
         % for every image in uniqNames, we find all the boxes in
         % isMemberTable:
@@ -33,13 +33,7 @@ switch choice
                     x2 = currBox.bottomRight_x(Label);
                     y2 = currBox.bottomRight_y(Label);
                     BBox = [x1, y1, (x2 - x1), (y2 - y1)];
-                    if jj == 1
-                        labelsTable.sit(ii)   = {BBox};
-                    elseif jj == 2
-                        labelsTable.stand(ii) = {BBox};
-                    elseif jj == 3
-                        labelsTable.walk(ii)  = {BBox};
-                    end
+                    labelsTable{ii,1+jj}   = {BBox};
                 end
             end
         end
