@@ -10,17 +10,25 @@ labels = [12]; %[11; 12; 14];
 labelsName = {'stand'}; %{'sit'; 'stand'; 'walk'};
 [isMemberTable,imNames, uniqNames] = extractImages(labels, trainTable);
 %% Create frame dataset
-FrameData = createFrameData();
+FrameData = createFrameData(); % Creates the frameData - an image dataframe with the middle frames in it.
 %% get extract table:
+% creates the table of all the images in the loaded data, that has boxes
+% with the specific labels in it, and fixes the boxes for Training.
 existTable = createExistTable(imNames, uniqNames, labels, labelsName, isMemberTable, FrameData);
 %% Divide into train and test
+% divides into train and test sets according to the percents. Also shows
+% some images from the test, with the boxes in them to see that it came out
+% well.
 trainPercent = 0.2;
 testPercent  = 0.2;
 [trainTable,testTable, imgPerm] = train_test(FrameData, existTable, trainPercent, testPercent);
 
 %% Load net:
+% currently loading existing net, and preparing it for the right number of
+% categories:
 layers = createNNlayers(labels);
 %% train:
+% Creat specific options, and trin network to data:
 options = trainingOptions('sgdm', ...
     'InitialLearnRate', 1e-4, ...
     'MaxEpochs', 6, ...
@@ -30,4 +38,13 @@ RCNNModl = trainFasterRCNNObjectDetector(trainTable, layers, options, 'NegativeO
 disp('    --finished training');
 toc
 %% test:
+% Test success ratio and look it detected boxes:
 testOutcome = testRCNN(testTable, RCNNModl, FrameData, imgPerm);
+% Now we want to estimate a score. The idea is to check if the labels are
+% correct, and if so, find the IOU (Intersection Over Union) of every label
+% and add up (normalizing by the number of images tested).
+
+
+
+
+
