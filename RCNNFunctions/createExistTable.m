@@ -58,7 +58,7 @@ switch choice
                             ImgSize(indx,1)]; % = [sizeX, sizeY, sizeX, sizeY]
             % if the cell in the table is empty, it won't allow to multiply.
             for jj = 1:length(labelsName)
-                 if ~isempty(existTable(ii,1+jj))
+                 if ~isempty(existTable{ii,1+jj}{:})
                     existTable{ii,1+jj}{:} = round(existTable{ii,1+jj}{:}.*pixFrame);
                  end
             end

@@ -14,7 +14,9 @@ switch choice
         load([PathName,FileName]); % don't know what the warning here might be about.
     case 'No'
         emptyCell = cell(length(uniqNames),length(labelsName));
-        labelsTable = table(uniqNames,emptyCell);
+        labelsTable = table(uniqNames);
+        labelsTable = [labelsTable, emptyCell];
+        % labelsTable = table([uniqNames,emptyCell]);
         labelsTable.Properties.VariableNames = {'names', labelsName{:}}; % the variable names are the labels - for the RCNN
         % for every image in uniqNames, we find all the boxes in
         % isMemberTable:

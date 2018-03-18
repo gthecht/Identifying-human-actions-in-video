@@ -1,10 +1,10 @@
-function [testOutcome] = testRCNN(testTable, RCNNModl, FrameData, imgPerm)
+function [testOutcome] = testRCNN(testTable, RCNNModl, FrameData, imgPerm, labelsName)
 nTest = length(testTable.names);
 bbox  = cell(nTest,1);
 score = cell(nTest,1);
 label = cell(nTest,1);
-% for ii = 1:nTest
-for ii = imgPerm
+parfor ii = 1:nTest
+% for ii = imgPerm
     img = FrameData.ReadFcn(testTable.names{ii});
     [currBbox, currScore, currLabel] = detect(RCNNModl, img);
     bbox{ii}  = currBbox;
@@ -13,20 +13,12 @@ for ii = imgPerm
 end
 testOutcome = table(bbox, score, label);
 testOutcome.Properties.VariableNames = {'bbox', 'score', 'label'};
-detectedImg = cell(20,1);
-testedImg   = cell(20,1);
+%% We'll show a few images just to see how it went:
+close all;
 figHandle   = cell(20,1);
 for kk = 1:20
-    img = FrameData.ReadFcn(testTable.names{imgPerm(kk)});
-    detectedImg{kk} = insertShape(img, 'Rectangle', bbox{imgPerm(kk)}, 'LineWidth', 2);
-    pos = cell2mat([testTable{imgPerm(kk),2:end}]');
-    testedImg{kk}   = insertShape(img, 'Rectangle', pos, 'LineWidth', 2);
-%     subplot(4,5,kk);
-    figHandle{kk} = figure(kk + 2);
-    subplot(1,2,1); imshow(detectedImg{kk});
-    title('detected boxes');
-    subplot(1,2,2); imshow(testedImg{kk});
-    title('real boxes');
+    figHandle{kk} = compDetectandTest(FrameData, labelsName, testTable, ...
+                        testOutcome, imgPerm(kk), kk);
 end
 % lastly we want to ask if we should save this:
 savechoice = questdlg('Would you like to save these figures?',...
@@ -43,6 +35,7 @@ switch savechoice
                 FrameID = ['_', FrameID];
             end
             saveas(figHandle{kk}, FrameID, 'jpg');
+            savefig(figHandle{kk}, FrameID);
         end
         cd(prevDir);
     case 'No'
