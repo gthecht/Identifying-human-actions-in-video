@@ -45,7 +45,7 @@ testOutcome = testRCNN(testTable, RCNNModl, FrameData, imgPerm, labelsName);
 % % Now we want to estimate a score. The idea is to check if the labels are
 % % correct, and if so, find the IOU (Intersection Over Union) of every label
 % % and add up (normalizing by the number of images tested).
-[testScore, outTable] = calcRCNNScore(testTable, testOutcome, labelsName);
+[confusionMatrix, testScore, outTable] = calcRCNNScore(testTable, testOutcome, labelsName);
 
 
 
