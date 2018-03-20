@@ -1,5 +1,5 @@
-function [confusionMatrix, testScore, outTable] = calcRCNNScore(testTable, testOutcome, labelsName)
-% The ide is to find the most suitable boxes in the testOutcome, to those of
+function [confTable, testScore, outTable] = calcRCNNScore(testTable, testOutcome, labelsName)
+% The idea is to find the most suitable boxes in the testOutcome, to those of
 % testTable. Then we will find out how good the IOU (Intersection Over 
 % Union) is, and also whether the labels are correct.
 % It would also be a good idea to create a confusion matrix!
@@ -125,15 +125,17 @@ try
         %% Now we need to compare labels, and create a confusion matrix.
         confMat = confusionmat(labelPairs.TestLabels, ...
             labelPairs.OutcomeLabels, 'Order', order);
-        confArray(:, :, ii) = confMat / sum(confMat(:)); % So that it will be normalized
+        confArray(:, :, ii) = confMat; % / sum(confMat(:)); % So that it will be normalized
     end
 catch ME
     ii
     break
 end
 end
-confusionMatrix = sum(confArray, 3) / nTest;
-testScore           = sum(diag(confusionMatrix)) - confusionMatrix(end,end);
+confusionMatrix = sum(confArray, 3);
+% confusionMatrix = confusionMatrix / sum(confusionMatrix(:)); % So that it will be normalized
+confTable       = array2table(confusionMatrix, 'RowNames', order, 'VariableNames', order);
+testScore       = sum(diag(confusionMatrix)) / sum(confusionMatrix(:));
 %% Turn testOutcome into a table like testTable
 % testOutcome comes as [bbox, score, label]
 

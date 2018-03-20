@@ -1,4 +1,7 @@
 function [testOutcome] = testRCNN(testTable, RCNNModl, FrameData, imgPerm, labelsName)
+% runs detect over all images in test-batch, and returns frames with
+% labels. Shows a few examples with boxes detected and real side by side
+% and allows to save them.
 nTest = length(testTable.names);
 bbox  = cell(nTest,1);
 score = cell(nTest,1);

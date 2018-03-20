@@ -52,7 +52,7 @@ switch choice
         % Now for updating the table:
         % We'll run a loop through the all the files, and multiply each box by
         % [sizeX, sizeY, sizeX, sizeY]:
-        for ii = 1:length(existIndx)
+        for ii = 1:length(existIndx) % Might be able to change this to a parfor
             indx = find(ismember(FrameData.Files, existTable.names{ii}));
             pixFrame = [ImgSize(indx,2), ImgSize(indx,1), ImgSize(indx,2), ...
                             ImgSize(indx,1)]; % = [sizeX, sizeY, sizeX, sizeY]

@@ -5,8 +5,9 @@ load trainTable; % in: 'Identifying-human-actions-in-video' folder
 load uniqueSegmentsIndex; % the indices of the unique segments in the trainTable
 %% extract images :
 % for now we only want the ones with a pose that is:
-% stand = 12, sit = 11, walk = 14
-labels = [11; 12];
+% bend/bow = 1, lie/sleep = 8, sit = 11, stand = 12, walk = 14,  
+labels = [1; 8; 11; 12; 14];
+labelsName = {'bend_bow'; 'lie_sleep'; 'sit'; 'stand'; 'walk'};
 labelsName = {'sit'; 'stand'};
 [isMemberTable,imNames, uniqNames] = extractImages(labels, trainTable);
 %% Create frame dataset
@@ -40,12 +41,10 @@ toc
 %% test:
 % Test success ratio and look it detected boxes:
 testOutcome = testRCNN(testTable, RCNNModl, FrameData, imgPerm, labelsName);
-% % lets say for now that we only checked the imgPerm ones:
-% testOutcome = testOutcome(imgPerm,:);
-% % Now we want to estimate a score. The idea is to check if the labels are
-% % correct, and if so, find the IOU (Intersection Over Union) of every label
-% % and add up (normalizing by the number of images tested).
-[confusionMatrix, testScore, outTable] = calcRCNNScore(testTable, testOutcome, labelsName);
+% Now we want to estimate a score. The idea is to check if the labels are
+% correct, and if so, find the IOU (Intersection Over Union) of every label
+% and add up (normalizing by the number of images tested).
+[confTable, testScore, outTable] = calcRCNNScore(testTable, testOutcome, labelsName);
 
 
 
