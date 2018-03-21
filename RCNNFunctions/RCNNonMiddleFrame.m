@@ -16,13 +16,21 @@ FrameData = createFrameData(); % Creates the frameData - an image dataframe with
 % creates the table of all the images in the loaded data, that has boxes
 % with the specific labels in it, and fixes the boxes for Training.
 existTable = createExistTable(imNames, uniqNames, labels, labelsName, isMemberTable, FrameData);
+% Now we want to ballance the dataset - making sure that there is
+% approximately the same number of boxes for each label. Since this is an
+% optimization, and isn't very well bounded. I recommend checking to see
+% that the numbers are ok, and do not vary too greatly (I would expect no
+% more than 10% difference between the minium and maximum)
+% 'balancedTable' is the table with balanced images, 'balancedNumsTable' is the
+% number of boxes for each label.
+[balancedTable, balancedNumsTable] = balanceDataSet(existTable, labelsName);
 %% Divide into train and test
 % divides into train and test sets according to the percents. Also shows
 % some images from the test, with the boxes in them to see that it came out
 % well.
 trainPercent = 0.8;
 testPercent  = 0.2;
-[trainTable,testTable, imgPerm] = train_test(FrameData, existTable, trainPercent, testPercent);
+[trainTable,testTable, imgPerm] = train_test(FrameData, balancedTable, trainPercent, testPercent);
 
 %% Load net:
 % currently loading existing net, and preparing it for the right number of
