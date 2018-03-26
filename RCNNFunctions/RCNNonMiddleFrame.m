@@ -1,4 +1,10 @@
 %% Ronen and Gilad 15.02.18
+% Running RCNN on the labeled middle frame. Mostly we worked on poses -
+% labels 1 to 14.
+
+% Need to do:
+%       1) fix so that it works with vgg16
+%       2) 
 clear; clc;
 %% loading train CSV:
 load trainTable; % in: 'Identifying-human-actions-in-video' folder
@@ -6,9 +12,9 @@ load uniqueSegmentsIndex; % the indices of the unique segments in the trainTable
 %% extract images :
 % for now we only want the ones with a pose that is:
 % bend/bow = 1, lie/sleep = 8, sit = 11, stand = 12, walk = 14,  
-labels = [1; 8; 11; 12; 14];
-labelsName = {'bend_bow'; 'lie_sleep'; 'sit'; 'stand'; 'walk'};
-labelsName = {'sit'; 'stand'};
+labels = [8; 11; 12];
+labelsName = {'lie_sleep'; 'sit'; 'stand'};
+% labelsName = {'sit'; 'stand'};
 [isMemberTable,imNames, uniqNames] = extractImages(labels, trainTable);
 %% Create frame dataset
 FrameData = createFrameData(); % Creates the frameData - an image dataframe with the middle frames in it.
