@@ -4,7 +4,7 @@
 
 % Need to do:
 %       1) fix so that it works with vgg16
-%       2) 
+%       2) add precision and recall plot
 clear; clc;
 %% loading train CSV:
 load trainTable; % in: 'Identifying-human-actions-in-video' folder
