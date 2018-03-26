@@ -49,7 +49,7 @@ switch choice
                 currSize = size(currImg);
                 ImgSize(ii,:) = currSize(1:2);
             end
-                savechoice = questdlg('Would you like to save this imageSizes?',...
+            savechoice = questdlg('Would you like to save this imageSizes?',...
                 'saving ImageSizes', 'Yes', 'No', 'Yes');
             switch savechoice
                 case 'Yes'
