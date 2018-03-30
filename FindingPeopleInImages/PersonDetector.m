@@ -30,15 +30,16 @@ testPercent  = 0.2;
 %% Load net:
 % currently loading existing net, and preparing it for the right number of
 % categories:
-layers = createNNlayers(labels);
+layers = createNNlayers(labelsName);
 %% train:
 % Creat specific options, and trin network to data:
 options = trainingOptions('sgdm', ...
     'InitialLearnRate', 1e-6, ...
     'MaxEpochs', 3, ...
+    'MiniBatchSize', 32, ... % 32 works with RCNN, maybe 128 will also work
     'CheckpointPath', tempdir);
 tic
-RCNNModl = trainFasterRCNNObjectDetector(trainTable, layers, options, 'NegativeOverlapRange', [0 0.3], 'PositiveOverlapRange', [0.7,1])
+RCNNModl = trainRCNNObjectDetector(trainTable, layers, options, 'NegativeOverlapRange', [0 0.3], 'PositiveOverlapRange', [0.7,1])
 disp('    --finished training');
 toc
 %% test:

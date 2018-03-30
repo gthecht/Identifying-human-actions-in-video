@@ -81,7 +81,7 @@ try
         % The top row of IOUind are the indices of the boxes. We need to
         % know if the columns are the testOutcome or the real boxes.
         indLen = length(maxInd);
-        thresh = 0.1; % threshold under which we don't count the boxes as paired
+        thresh = 0.5; % threshold under which we don't count the boxes as paired
         if flippedIOU
             % If IOUSort is smaller then some threshold, then in fact there
             % is no pairing:
@@ -112,20 +112,20 @@ try
             if pairs(jj, 1) == 0
                 labelPairs{jj, 1} = 'background';
             else
-                labelPairs{jj, 1} = testLabels{pairs(jj, 1),:};
+                labelPairs{jj, 1} = testLabels{pairs(jj, 1)}; % deleted: testLabels{pairs(jj, 1),:}
             end
             % Similarly for the real boxes column:
             if pairs(jj, 2) == 0
                 labelPairs{jj, 2} = 'background';
             else
-                labelPairs{jj, 2} = outcomeLabels{pairs(jj, 2),:};
+                labelPairs{jj, 2} = outcomeLabels{pairs(jj, 2)}; % outcomeLabels{pairs(jj, 2), :}
             end
         end
         labelPairs = cell2table(labelPairs, 'VariableNames', {'OutcomeLabels', 'TestLabels'});
         %% Now we need to compare labels, and create a confusion matrix.
         confMat = confusionmat(labelPairs.TestLabels, ...
             labelPairs.OutcomeLabels, 'Order', order);
-        confArray(:, :, ii) = confMat; % / sum(confMat(:)); % So that it will be normalized
+        confArray(:, :, ii) = confMat;
     end
 catch ME
     ii
@@ -133,7 +133,6 @@ catch ME
 end
 end
 confusionMatrix = sum(confArray, 3);
-% confusionMatrix = confusionMatrix / sum(confusionMatrix(:)); % So that it will be normalized
 confTable       = array2table(confusionMatrix, 'RowNames', order, 'VariableNames', order);
 testScore       = sum(diag(confusionMatrix)) / sum(confusionMatrix(:));
 %% Turn testOutcome into a table like testTable
