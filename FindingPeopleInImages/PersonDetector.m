@@ -44,7 +44,12 @@ disp('    --finished training');
 toc
 %% test:
 % Test success ratio and look it detected boxes:
-testOutcome = testRCNN(testTable, RCNNModl, FrameData, imgPerm, labelsName);
+nTest = length(testTable.names);
+bbox  = cell(nTest,1);
+score = cell(nTest,1);
+label = cell(nTest,1);
+testOutcome = testRCNN(testTable, RCNNModl, FrameData, imgPerm, labelsName, ...
+    bbox, score, label, nTest, startIndx);
 % Now we want to estimate a score. The idea is to check if the labels are
 % correct, and if so, find the IOU (Intersection Over Union) of every label
 % and add up (normalizing by the number of images tested).

@@ -1,18 +1,23 @@
-function [testOutcome] = testRCNN(testTable, RCNNModl, FrameData, imgPerm, labelsName)
+function [testOutcome] = testRCNN(testTable, RCNNModl, FrameData, imgPerm, ...
+                        labelsName, bbox, score, label, nTest, startIndx)
 % runs detect over all images in test-batch, and returns frames with
 % labels. Shows a few examples with boxes detected and real side by side
 % and allows to save them.
-nTest = length(testTable.names);
-bbox  = cell(nTest,1);
-score = cell(nTest,1);
-label = cell(nTest,1);
-for ii = 1:nTest
-% for ii = imgPerm
-    img = FrameData.ReadFcn(testTable.names{ii});
-    [currBbox, currScore, currLabel] = detect(RCNNModl, img);
-    bbox{ii}  = currBbox;
-    score{ii} = currScore;
-    label{ii} = currLabel;
+try
+    waitf = waitbar(0,['Tested 0 images out of ', num2str(nTest)]);
+    for ii = startIndx:nTest
+    % for ii = imgPerm
+        waitStr = ['Tested ', num2str(ii - 1), ' images out of ', num2str(nTest)];
+        waitbar(ii/nTest, waitf, waitStr);
+        img = FrameData.ReadFcn(testTable.names{ii});
+        [currBbox, currScore, currLabel] = detect(RCNNModl, img);
+        bbox{ii}  = currBbox;
+        score{ii} = currScore;
+        label{ii} = currLabel;
+    end
+catch ME
+    startIndx = ii;
+    save('testRCNN_bboxScoreLabel', 'bbox', 'score', 'label', 'startIndx');
 end
 testOutcome = table(bbox, score, label);
 testOutcome.Properties.VariableNames = {'bbox', 'score', 'label'};
