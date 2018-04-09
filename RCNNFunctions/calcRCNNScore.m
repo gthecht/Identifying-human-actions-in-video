@@ -82,7 +82,7 @@ try
         % The top row of IOUind are the indices of the boxes. We need to
         % know if the columns are the testOutcome or the real boxes.
         indLen = length(maxInd);
-        thresh = 0; % threshold under which we don't count the boxes as paired
+        thresh = 0.5; % threshold under which we don't count the boxes as paired
         if flippedIOU
             % If IOUSort is smaller then some threshold, then in fact there
             % is no pairing:
@@ -146,32 +146,31 @@ pairsTable = cat(1, pairsCell{:});
 % We now want to creat a precision and recall graph. This means that we
 % will run over different IOU thresholds, and plot the precision as a
 % function of the recall:
-threshold   = 0.3:0.05:1;
-precision   = zeros(length(threshold), length(order) - 1);
-recall      = zeros(length(threshold), length(order) - 1);
-for ii = 1:length(threshold)
-    for jj = 1:length(labelsName)
-        threshTable      = pairsTable;
-        threshTable(threshTable.IOU < threshold(ii),:) = [];
-    end
-    
-    confMat          = confusionmat(threshTable.TestLabels, ...
-            threshTable.OutcomeLabels, 'Order', order);
-	truePos          = diag(confMat);
-    truePos          = truePos(1 : end - 1);
-    selected         = sum(confMat,2);
-    selected         = selected(1 : end - 1);
-    allRelevent      = sum(confMat,1)';
-    allRelevent      = allRelevent(1 : end - 1);
-	precision(ii,:)  = truePos ./ selected;
-    recall(ii,:)     = truePos ./ allRelevent;
-end
-% plot:
+threshold   = 0.5:0.05:1;
+precision   = zeros(length(threshold), length(labelsName));
+recall      = zeros(length(threshold), length(labelsName));
 figure(); hold on
-for ii = 1 : length(labelsName)
+for ii = 1:length(labelsName)
+    testLabel      = strcmp(pairsTable.TestLabels,labelsName(ii)); % all testLabels of Label ii
+    outcomeLabel   = strcmp(pairsTable.OutcomeLabels,labelsName(ii)); % all outcomeLabels of Label ii
+    for jj = 1:length(threshold)
+        % the problem is that if the IOU is too low, then we'll need to
+        % turn the test label into 0:
+        outcomeLabel(pairsTable.IOU < threshold(jj)) = 0;
+        % Now we can plug this into the confusion matrix:
+        confMat  = confusionmat(outcomeLabel,  testLabel, 'Order', [1,0]);
+        truePos  = confMat(1,1);
+        selected = confMat(1,2);
+        relevent = confMat(2,1);
+        precision(jj,ii)  = truePos ./ (truePos + selected);
+        recall(jj,ii)     = truePos ./ (truePos + relevent);
+    end
+	% plot:
     plot(recall(:,ii), precision(:,ii));
 end
-title('Precision(recall)'); xlabel('Recall'); ylabel('Precision');
+title(['Precision(recall) for threshold = [', num2str(threshold(1)),',',...
+     num2str(threshold(end)), ']']);
+ xlabel('Recall'); ylabel('Precision');
 legend(labelsName);
 %% Overall Confusion matrix
 confusionMatrix      = confusionmat(pairsTable.TestLabels, ...
