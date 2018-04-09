@@ -6,25 +6,34 @@
 
 prompt = 'Choose the directory from which you want to check it''s videos';
 title = 'Input';
-
-v = VideoReader('7YpF6DntOYw_t=1039.mp4');
-h = [];
-sz = v.Width * v.Height;
+answer = inputdlg(prompt,title);
+% cd(answer)
+list = dir(answer{1});
+T = struct2table(list);
+T(T.isdir==1, :) = [];
+T = table(T.name, T.isdir, 'VariableNames', {'videoName','iscut'});
 edges = 5;
-while hasFrame(v)
-video = rgb2gray(readFrame(v));
-N = histcounts(video, edges) / sz;
-h = [h; N];
-end
-gradN = [];
-for jj = 1:edges
-gradN = [gradN, gradient(h(:,jj))];
-end
-
-aa=sum(abs(gradN));
-med = meadian(aa);
-if(max(aa) > 10*med)
-    
-    
-    
+countCut = 0;
+gradSum = [];
+med = [];
+for ii = 1:length(T)
+    h = [];
+    gradN = [];
+    v = VideoReader(T.videoName{ii});
+    sz = v.Width * v.Height;
+    while hasFrame(v)
+    video = rgb2gray(readFrame(v));
+    N = histcounts(video, edges) / sz;
+    h = [h; N];
+    end
+    for jj = 1:edges
+        gradN = [gradN, gradient(h(:,jj))];
+    end
+    currgradSum = sum(abs(gradN'));
+    gradSum = [gradSum; currgradSum];
+    med = [med, median(gradSum)];
+    if(max(currgradSum) > 5*med)
+        T.iscut(ii) = 1;
+        countCut = countCut + 1;
+    end
 end
