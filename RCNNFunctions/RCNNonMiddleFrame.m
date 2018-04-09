@@ -2,9 +2,6 @@
 % Running RCNN on the labeled middle frame. Mostly we worked on poses -
 % labels 1 to 14.
 
-% Need to do:
-%       1) fix so that it works with vgg16
-%       2) add precision and recall plot
 clear; clc;
 %% loading train CSV:
 load trainTable; % in: 'Identifying-human-actions-in-video' folder
@@ -58,7 +55,7 @@ testOutcome = testRCNN(testTable, RCNNModl, FrameData, imgPerm, labelsName);
 % Now we want to estimate a score. The idea is to check if the labels are
 % correct, and if so, find the IOU (Intersection Over Union) of every label
 % and add up (normalizing by the number of images tested).
-[confTable, testScore, outTable] = calcRCNNScore(testTable, testOutcome, labelsName);
+[confTable, testScore, outTable, precision, recall] = calcRCNNScore(testTable, testOutcome, labelsName);
 
 
 

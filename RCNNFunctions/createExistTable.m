@@ -74,7 +74,7 @@ switch choice
         end
         toc
         % lastly we want to ask if we should save this:
-        savechoice = questdlg('Would you like to save this existTable?',...
+        savechoice = questdlgtimeout(60, 'Would you like to save this existTable?',...
             'saving existTable', 'Yes', 'No', 'Yes');
         switch savechoice
             case 'Yes'
