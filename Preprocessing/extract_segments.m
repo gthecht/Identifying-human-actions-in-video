@@ -9,7 +9,7 @@ src_cell   = inputdlg(prompt,dir_title);
 dat_dir    = src_cell{1};
 cd(dat_dir);
 % make sure you are in the directory with the csv file.
-csvID = fopen('ava_train_v1.0.csv');
+csvID = fopen('ava_test_v1.0.csv');
 avaTrain = textscan(csvID,'%s %f %f %f %f %f %f', 'Delimiter', ',');
 fclose(csvID);
 trainTable = table(avaTrain{1}, avaTrain{2}, avaTrain{3}, avaTrain{4}, ...
@@ -50,7 +50,7 @@ mkdir('../segmentsDatabase'); %% places the segments in a directory right beside
 existsegs  = struct2cell(dir('../segmentsDatabase'));
 existsegs  = existsegs(1,:)';
 %% extracting vids
-parfor ii = 1: length(memberSeg)
+for ii = 1: length(memberSeg)
 % parfor ii = prev_ii: length(memberSeg)  % just so I won't overlap!
     if ismember([memberStr{ii}, '.mp4'], existsegs)
         continue
