@@ -18,7 +18,8 @@ for ii = 1:nTest
 end
 %% For the confusion matrix:
 order     = [labelsName; {'background'}];
-confArray  = zeros(labNum + 1, labNum + 1, nTest);
+confArray = zeros(labNum + 1, labNum + 1, nTest);
+pairsCell = cell(nTest,1);
 %% IOU:
 % Now that the table is ordered, we want use the intersection over union,
 % to calculate the overall score
@@ -77,11 +78,11 @@ try
                 break;
             end
         end
-        %% We can pair the boxes:
+        %% Pairing the boxes:
         % The top row of IOUind are the indices of the boxes. We need to
         % know if the columns are the testOutcome or the real boxes.
         indLen = length(maxInd);
-        thresh = 0.5; % threshold under which we don't count the boxes as paired
+        thresh = 0; % threshold under which we don't count the boxes as paired
         if flippedIOU
             % If IOUSort is smaller then some threshold, then in fact there
             % is no pairing:
@@ -105,36 +106,78 @@ try
         % labels:
         outcomeLabels  = cellstr(testOutcome.label{ii,:});
         testLabels     = (testBoxes.labels{ii,:});
-        labelPairs = cell(size(pairs, 1) , 2);
+        labelPairs = cell(size(pairs, 1) , 3);
         for jj = 1 : size(pairs, 1)
             % if we have a 0 as one of the indices in the pairs, we'll
             % label it 'background':
             if pairs(jj, 1) == 0
                 labelPairs{jj, 1} = 'background';
+                labelPairs{jj, 3} = 0;
             else
                 labelPairs{jj, 1} = testLabels{pairs(jj, 1)}; % deleted: testLabels{pairs(jj, 1),:}
+                labelPairs{jj, 3} = pairs(jj,3);
             end
             % Similarly for the real boxes column:
             if pairs(jj, 2) == 0
                 labelPairs{jj, 2} = 'background';
+                labelPairs{jj, 3} = 0;
             else
                 labelPairs{jj, 2} = outcomeLabels{pairs(jj, 2)}; % outcomeLabels{pairs(jj, 2), :}
+                labelPairs{jj, 3} = pairs(jj,3);
             end
         end
-        labelPairs = cell2table(labelPairs, 'VariableNames', {'OutcomeLabels', 'TestLabels'});
-        %% Now we need to compare labels, and create a confusion matrix.
-        confMat = confusionmat(labelPairs.TestLabels, ...
-            labelPairs.OutcomeLabels, 'Order', order);
-        confArray(:, :, ii) = confMat;
+        labelPairs = cell2table(labelPairs, 'VariableNames', {'OutcomeLabels', 'TestLabels', 'IOU'});
+        pairsCell{ii} = labelPairs;
+%         %% Now we need to compare labels, and create a confusion matrix.
+%         confMat = confusionmat(labelPairs.TestLabels, ...
+%             labelPairs.OutcomeLabels, 'Order', order);
+%         confArray(:, :, ii) = confMat;
     end
 catch ME
     ii
     break
 end
 end
-confusionMatrix = sum(confArray, 3);
-confTable       = array2table(confusionMatrix, 'RowNames', order, 'VariableNames', order);
-testScore       = sum(diag(confusionMatrix)) / sum(confusionMatrix(:));
+% Now we have a cell of tables for image. We will concatenate the tables so
+% that we get one long table for all the boxes, with: {'OutcomeLabels',
+% 'TestLabels', 'IOU'} as columns:
+pairsTable = cat(1, pairsCell{:});
+%% Precision and recall
+% We now want to creat a precision and recall graph. This means that we
+% will run over different IOU thresholds, and plot the precision as a
+% function of the recall:
+threshold   = 0.3:0.05:1;
+precision   = zeros(length(threshold), length(order) - 1);
+recall      = zeros(length(threshold), length(order) - 1);
+for ii = 1:length(threshold)
+    for jj = 1:length(labelsName)
+        threshTable      = pairsTable;
+        threshTable(threshTable.IOU < threshold(ii),:) = [];
+    end
+    
+    confMat          = confusionmat(threshTable.TestLabels, ...
+            threshTable.OutcomeLabels, 'Order', order);
+	truePos          = diag(confMat);
+    truePos          = truePos(1 : end - 1);
+    selected         = sum(confMat,2);
+    selected         = selected(1 : end - 1);
+    allRelevent      = sum(confMat,1)';
+    allRelevent      = allRelevent(1 : end - 1);
+	precision(ii,:)  = truePos ./ selected;
+    recall(ii,:)     = truePos ./ allRelevent;
+end
+% plot:
+figure(); hold on
+for ii = 1 : length(labelsName)
+    plot(recall(:,ii), precision(:,ii));
+end
+title('Precision(recall)'); xlabel('Recall'); ylabel('Precision');
+legend(labelsName);
+%% Overall Confusion matrix
+confusionMatrix      = confusionmat(pairsTable.TestLabels, ...
+            pairsTable.OutcomeLabels, 'Order', order);
+confTable = array2table(confusionMatrix, 'RowNames', order, 'VariableNames', order);
+testScore = sum(diag(confusionMatrix)) / sum(confusionMatrix(:));
 %% Turn testOutcome into a table like testTable
 % testOutcome comes as [bbox, score, label]
 
