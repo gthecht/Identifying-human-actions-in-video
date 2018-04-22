@@ -35,11 +35,11 @@ layers = createNNlayers(labelsName);
 % Creat specific options, and trin network to data:
 options = trainingOptions('sgdm', ...
     'InitialLearnRate', 1e-6, ...
-    'MaxEpochs', 3, ...
-    'MiniBatchSize', 32, ... % 32 works with RCNN, maybe 128 will also work
+    'MaxEpochs', 10, ...
+    'MiniBatchSize', 128, ... % 32 works with RCNN, maybe 128 will also work
     'CheckpointPath', tempdir);
 tic
-RCNNModl = trainRCNNObjectDetector(trainTable, layers, options, 'NegativeOverlapRange', [0 0.3], 'PositiveOverlapRange', [0.7,1])
+RCNNModl = trainFasterRCNNObjectDetector(trainTable, layers, options, 'NegativeOverlapRange', [0 0.3], 'PositiveOverlapRange', [0.7,1])
 disp('    --finished training');
 toc
 %% test:
@@ -55,6 +55,11 @@ testOutcome = testRCNN(testTable, RCNNModl, FrameData, imgPerm, labelsName, ...
 % and add up (normalizing by the number of images tested).
 [confTable, testScore, outTable] = calcRCNNScore(testTable, testOutcome, labelsName);
 
-
-
+%% Save to temp file:
+fileName  = 'PersonDetectorWorkspace';
+path      = mfilename('fullpath');
+splitPath = strsplit(path, '\');
+direcPath = strjoin(splitPath(1:end-1), '\');
+filePath  = [direcPath, '\', 'tempSave'];
+saved     = save2Temp(fileName, filePath);
 

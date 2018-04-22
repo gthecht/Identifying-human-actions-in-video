@@ -3,7 +3,7 @@ function [layers] = createNNlayers(labels)
 % output is correct.
 %% Choose Network Architecture
 choice = questdlgtimeout(60,'Which net do you want to use?',...
-    	'Transfer Network', 'alexnet', 'vgg16', 'alexnet');
+    	'Transfer Network', 'alexnet', 'vgg16', 'vgg19', 'alexnet');
 switch choice
     case 'alexnet'
         alex = alexnet; 
@@ -11,6 +11,9 @@ switch choice
     case 'vgg16'
         warndlg('Note that vgg16 needs a lot of GPU RAM!', 'vgg16');
         vgg  = vgg16;
+        layers = vgg.Layers
+    case 'vgg19'
+        vgg  = vgg19;
         layers = vgg.Layers
 end
 %% Modify Pre-trained Network 
