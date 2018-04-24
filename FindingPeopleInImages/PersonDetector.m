@@ -48,6 +48,7 @@ nTest = length(testTable.names);
 bbox  = cell(nTest,1);
 score = cell(nTest,1);
 label = cell(nTest,1);
+startIndx = 1;
 testOutcome = testRCNN(testTable, RCNNModl, FrameData, imgPerm, labelsName, ...
     bbox, score, label, nTest, startIndx);
 % Now we want to estimate a score. The idea is to check if the labels are
