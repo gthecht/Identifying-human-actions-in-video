@@ -15,8 +15,10 @@ try
         score{ii} = currScore;
         label{ii} = currLabel;
     end
+    delete(waitf);
 catch ME
     startIndx = ii;
+    delete(waitf);
     save('testRCNN_bboxScoreLabel', 'bbox', 'score', 'label', 'startIndx');
 end
 testOutcome = table(bbox, score, label);
