@@ -27,7 +27,7 @@ threshold   = thresh : 0.05 : 1;
 [precision, recall] = precisionAndRecall(threshold, labelsName, pairsTable);
 %% Confusion matrix with threshold 'thresh'
 order     = [labelsName; {'background'}]; % the labels with background in the order for the confusion matrix
-confusionMatrix      = confusionmat(pairsTable.TestLabels, ...
+confusionMatrix      = confusionmat(pairsTable.GTLabels, ...
             pairsTable.OutcomeLabels, 'Order', order);
 confTable = array2table(confusionMatrix, 'RowNames', order, 'VariableNames', order);
 testScore = sum(diag(confusionMatrix)) / sum(confusionMatrix(:));

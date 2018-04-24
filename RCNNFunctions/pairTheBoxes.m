@@ -17,8 +17,10 @@ try
         if flippedIOU
             % If IOUSort is smaller then some threshold, then in fact there
             % is no pairing:
+            scoreII = testOutcome.score(ii);
+            sortScore = scoreII{:}';
             pairs     = [maxInd .* (IOUSort(1,:) >= thresh); (1 : indLen);...
-                IOUSort(1,:)]'; %[outcome(if the IOU is above threhsold), testBox, IOU]
+                sortScore]'; %[outcome(if the IOU is above threhsold), testBox, outcome score]
             % We'll add unpaired boxes:
             % Since we flipped, we know that there are more in outcome than
             % testbox:
@@ -27,8 +29,11 @@ try
             noPairAdd(:,1) = noPair;
             pairs     = cat(1,pairs, noPairAdd);
         else
+            scoreII = testOutcome.score(ii);
+            sortScore = scoreII{:}';
+            sortScore = sortScore(maxInd);
             pairs     = [(1 : indLen); maxInd .* (IOUSort(1,:) >= thresh);...
-                IOUSort(1,:)]'; %[outcome, testBox (if the IOU is above threhsold), IOU]
+                sortScore]'; %[outcome, testBox (if the IOU is above threhsold), outcome score]
             noPair    = find(~ismember(1 : size(IOU, 1), pairs(:,2)));
             noPairAdd = zeros(length(noPair), 3);
             noPairAdd(:,2) = noPair;
@@ -57,7 +62,7 @@ try
                 labelPairs{jj, 3} = pairs(jj,3);
             end
         end
-        labelPairs = cell2table(labelPairs, 'VariableNames', {'OutcomeLabels', 'TestLabels', 'IOU'});
+        labelPairs = cell2table(labelPairs, 'VariableNames', {'OutcomeLabels', 'GTLabels', 'Score'});
         pairsCell{ii} = labelPairs;
 %         %% Now we need to compare labels, and create a confusion matrix.
 %         confMat = confusionmat(labelPairs.TestLabels, ...

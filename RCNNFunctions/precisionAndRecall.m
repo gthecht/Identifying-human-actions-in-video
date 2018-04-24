@@ -6,12 +6,12 @@ precision   = zeros(length(threshold), length(labelsName));
 recall      = zeros(length(threshold), length(labelsName));
 figure(); hold on
 for ii = 1:length(labelsName)
-    testLabel      = strcmp(pairsTable.TestLabels,labelsName(ii)); % all testLabels of Label ii
+    testLabel      = strcmp(pairsTable.GTLabels,labelsName(ii)); % all testLabels of Label ii
     outcomeLabel   = strcmp(pairsTable.OutcomeLabels,labelsName(ii)); % all outcomeLabels of Label ii
     for jj = 1:length(threshold)
         % the problem is that if the IOU is too low, then we'll need to
         % turn the test label into 0:
-        outcomeLabel(pairsTable.IOU < threshold(jj)) = 0;
+        outcomeLabel(pairsTable.Score < threshold(jj)) = 0;
         % Now we can plug this into the confusion matrix:
         confMat  = confusionmat(outcomeLabel,  testLabel, 'Order', [1,0]);
         truePos  = confMat(1,1);
@@ -21,7 +21,7 @@ for ii = 1:length(labelsName)
         recall(jj,ii)     = truePos ./ (truePos + relevent);
     end
 	% plot:
-    plot(recall(:,ii), precision(:,ii));
+    plot(recall(:,ii), precision(:,ii), '-o');
 end
 title(['Precision(recall) for threshold = [', num2str(threshold(1)),',',...
      num2str(threshold(end)), ']']);
