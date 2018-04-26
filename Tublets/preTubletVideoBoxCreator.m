@@ -2,6 +2,10 @@
 % Extract Table of boxes for the video segments. We do this by using a
 % RCNN-people detector on each frame, and saving the boxes for each
 % segment. After that the boxes will be used to create tublets.
+
+%% Note:
+%  Maybe a quicker way would be to run it on the whole videos, and then cut
+%  it up into segments.
 clear; clc;
 %% Create dataframe of videos:
 % D:\Projects\Project2_AVA\OneMovieSegments
