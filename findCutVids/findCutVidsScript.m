@@ -15,7 +15,7 @@ list = dir(answer{1});
 T = struct2table(list);
 T(T.isdir==1, :) = [];
 T = table(T.name, T.isdir, 'VariableNames', {'videoName','iscut'});
-edges = 32; % tried 5, 10, 256 before
+edges = 8; % tried 5, 10, 256 before
 countCut = 0;
 gradSum = [];
 med = [];
