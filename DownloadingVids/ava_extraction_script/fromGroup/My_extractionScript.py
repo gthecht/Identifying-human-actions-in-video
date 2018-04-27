@@ -7,7 +7,7 @@ import pickle
 import pdb
 
 videodir = "../videos/"
-annotfile = "ava_train_v1.0.csv"
+annotfile = "ava_train_v2.1.csv"
 # actionlistfile = "ava_action_list_v1.pbtxt"
 actionlistfile = "labelsOrdered.pbtxt"
 outdir = "out"
