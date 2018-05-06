@@ -9,7 +9,7 @@ src_cell   = inputdlg(prompt,dir_title);
 dat_dir    = src_cell{1};
 cd(dat_dir);
 % make sure you are in the directory with the csv file.
-csvID = fopen('ava_test_v1.0.csv');
+csvID = fopen('ava_train_v2.1.csv');
 avaTrain = textscan(csvID,'%s %f %f %f %f %f %f', 'Delimiter', ',');
 fclose(csvID);
 trainTable = table(avaTrain{1}, avaTrain{2}, avaTrain{3}, avaTrain{4}, ...
@@ -32,7 +32,7 @@ uniqStr = SegStr(uniqIndx);
 uniqSegs = segCell(uniqIndx);
 
 %% videoFileReader:
-%% entering the 'edited_EEG_data' directory
+%% entering the 'videos' directory
 % example in Gilad's:   E:\Project2\videos
 % Gilad's onedrive:     C:\Users\User\OneDrive - Technion\Courses\Project2\vidDatabase\videos
 prompt={'Enter video directory'};

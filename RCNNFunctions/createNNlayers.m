@@ -15,6 +15,9 @@ switch choice
     case 'vgg19'
         vgg  = vgg19;
         layers = vgg.Layers
+    case 'resnet50'
+        res = resnet50;
+        layers = res.Layers
 end
 %% Modify Pre-trained Network 
 % AlexNet and vgg16 were trained to recognize 1000 classes, we need to modify them to
