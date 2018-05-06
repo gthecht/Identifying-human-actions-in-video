@@ -33,6 +33,8 @@ existPruned  = existPruned(1,:)';
 % for ii = 1: length(memberVid)
 parfor ii = 1 : length(memberVid)  % just so I won't overlap!
     vidName  = memberVid{ii};
+    vidName  = strsplit(vidName, '.');
+    vidName  = vidName{1};
     if ismember([vidName, '_15Min.mp4'], existPruned)
         continue
     end
