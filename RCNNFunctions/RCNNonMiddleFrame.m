@@ -3,9 +3,8 @@
 % labels 1 to 14.
 
 clear; clc;
-%% loading train CSV:
-load trainTable; % in: 'Identifying-human-actions-in-video' folder
-load uniqueSegmentsIndex; % the indices of the unique segments in the trainTable
+%% loading train CSV, and test CSV:
+[trainTable,testTable] = getTrainandTestTables();
 %% extract images :
 % for now we only want the ones with a pose that is:
 % bend/bow = 1, lie/sleep = 8, sit = 11, stand = 12, walk = 14,  

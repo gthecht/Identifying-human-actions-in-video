@@ -1,4 +1,4 @@
-function [existTable] = createExistTablePeople(imNames, uniqNames, labels, isMemberTable, FrameData)
+function [existTable] = createExistTablePeople(imNames, uniqNames, labels, isMemberTable, FrameData, datatype)
 % ExistTable is the table which holds the table of the images that have
 % labels as suits 'labels' (according to labelsName) and are also found in
 % the frame directory, and has the boxes in pixels according to the image
@@ -7,15 +7,15 @@ function [existTable] = createExistTablePeople(imNames, uniqNames, labels, isMem
 % but relative.
 %% load existTable
 choice = questdlg('Would you like to load an existTable? (did you change the data in the directory?)',...
-    	'existTable', 'Yes', 'No', 'Yes');
+    	[datatype, ': existTable'], 'Yes', 'No', 'Yes');
 switch choice
     case 'Yes'
-        [FileName,PathName] = uigetfile('*.mat','Select your existTable');
+        [FileName,PathName] = uigetfile('*.mat',['Select your', datatype, ' existTable']);
         cd(PathName);
         load([PathName,FileName]); % don't know what the warning here might be about.
     case 'No'
         % Now we need to get LabelsTable and fix the sizes. 
-        disp('    --This will take some time!')
+        disp('    -- This will take some time!')
         tic
         labelsTable = createDataTablePeople(imNames, uniqNames, labels, isMemberTable);
         % labelsTable holds the table with the images and the boxes in them as
@@ -42,7 +42,7 @@ switch choice
         % of the same length as the number of frames - to make sure it is updated.
         load([frameDir,'ImgSize.mat']);
         if length(ImgSize) ~= FrameLen
-            disp 'Need to update image sizes...'
+            disp '    -- Need to update image sizes...'
             ImgSize = zeros(FrameLen,2);
             parfor ii = 1:FrameLen
                 currImg  = readimage(FrameData, ii);

@@ -36,6 +36,7 @@ switch choice
             end
         end
         % lastly we want to ask if we should save this:
+        beep;
         savechoice = questdlg('Would you like to save this labelsTable?',...
             'saving labelsTable', 'Yes', 'No', 'Yes');
         switch savechoice
