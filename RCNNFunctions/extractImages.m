@@ -9,7 +9,7 @@ isMemberTable = trainTable(find(ismember(trainTable.actionLabel, labels)),:);
 imNames = cell(length(isMemberTable.videoID), 1);
 for ii = 1:length(isMemberTable.videoID)
     imNames{ii} = [isMemberTable.videoID{ii}, '_t=', ... % the names of the images in 'isMemberTable'
-        num2str(isMemberTable.middleFrameTimeStamp(ii)), '_MiddleFrame.jpg'];
+        num2str(isMemberTable.middleFrameTimeStamp(ii)), '.jpg'];
 end
 uniqNames = unique(imNames, 'stable');
 % these are the names of the images that have at least one of the labels, with no duplicates of the name.
