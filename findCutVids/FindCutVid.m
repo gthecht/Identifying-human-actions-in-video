@@ -30,7 +30,7 @@ T(T.isdir==1, :) = [];
 n = length(T.isdir);    % Number of videos.
 
 % Create the data table
-dataTable = table(T.name, T.folder, zeros(n,1), zeros(n,1), zeros(n,1),...
+dataTable = table(T.name, T.folder, zeros(n,1), zeros(n,1), ones(n,1),...
     zeros(n,1),'VariableNames', {'vidName','Folder','isCut','Length',...
     'NewFirstFrame','GTFrameNum'});
 
@@ -41,6 +41,7 @@ for ii = 1:n
     h = [];
     histGrad = [];
     cutVec = [];
+    frameNum = 0;
     
     % Reading a video and extracting some properties
     v = VideoReader(dataTable.vidName{ii});
@@ -53,12 +54,15 @@ for ii = 1:n
     % Reading frame by frame and calculating histogram per patch
     while hasFrame(v)
     video = rgb2gray(readFrame(v));
+%     video = readFrame(v);
+    frameNum = frameNum + 1;
     N = blockproc(video, [patchSize, patchSize], fun) / sz;
     N = N(1:Hsplit, 1:(Wsplit*edges));
     N = N';
     h = [h; N(:)']; % concatenate the histogram bins one under the other.
     end
     
+    dataTable.Length(ii) = frameNum;
     histGrad = h(2:end, :) - h(1:end-1, :);
     
     for jj=1:Hsplit*Wsplit
@@ -68,12 +72,13 @@ for ii = 1:n
         val = (currhistGrad - med) ./ stanDev;
         cutted = (abs(val) > threshpatch);
         cuttedSum = sum(cutted, 2);
-        iscutted = (cuttedSum >= edges/2);
+        iscutted = (cuttedSum >= edges/4);
         iscuttedSum = sum(iscutted);
         cutVec = [cutVec, iscuttedSum>0];
     end
     
-    if (sum(cutVec)/length(cutVec) > thresh)
+    tmp = mean(cutVec)
+    if (mean(cutVec) > thresh)
         dataTable.isCut(ii) = 1;
         countCut = countCut + 1;
     end
