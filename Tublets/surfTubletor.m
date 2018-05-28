@@ -12,10 +12,10 @@ function [] = surfTubletor(vidTable, k)
 %           scores:  Cell holding the scores for all the boxes, meaning how
 %                    sure the system is of each box. We won't use it right
 %                    now, but may add it later.
-frameNum = length(boxTable.boxes{1}); % number of frames in segment
+frameNum = length(vidTable.boxes{1}); % number of frames in segment
 %% Read video:
-videoName  = boxTable.vidName{1};
-VR         = VideoReader(videoName); % make sure you are on the right path!
+videoName  = vidTable.vidName{1};
+VR         = VideoReader(videoName); % make sure you are on the right path! D:\OneDrive\OneDrive - Technion\Courses\Project2\segments\exampleSegments
 % Table hodling the k+1 frames and the boxes, surf and features:
 kTable     = cell2table(cell(k+1, 4), 'VariableNames', {'frame', 'boxes', 'surf', 'features'});
 for ii = 1 : k
@@ -29,8 +29,8 @@ for ii = 1:frameNum % Running frame by frame
     kTable = updatekTable(k, kTable, VR, vidTable);
     % For each frame, we look at the k next frames, and try to find fitting
     % boxes:
-    for jj = ii + 1:k
-        indexPairs = matchFeatures(features1,features2);
+    for jj = 1:k
+        indexPairs = matchFeatures(kTable{1}.features,kTable{jj+1}.features);
     end
 end
 end
