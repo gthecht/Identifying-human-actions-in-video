@@ -10,14 +10,15 @@ clear; clc;
 %% Create dataframe of videos:
 % D:\Projects\Project2_AVA\OneMovieSegments
 % dataPath = uigetdir();
-dataPath   = 'D:\Projects\Project2_AVA\OneMovieSegments';
+% dataPath   = 'D:\Projects\Project2_AVA\OneMovieSegments';
+dataPath    = uigetdir();
 vidDetails = struct2table(dir(dataPath));
 vidName    = vidDetails.name;
 vidName    = vidName(3:end);
 vidNum     = length(vidName);
 %% Run peopleDetector on video frames:
 % Load people detector:
-[rcnnmodl, path] = uigetfile('*.mat');
+[rcnnmodl, path] = uigetfile('*.mat', 'people detector model');
 load([path, '\', rcnnmodl]);
 % Create output Table:
 
@@ -45,7 +46,7 @@ parfor ii = 1 : vidNum
     %     figure(1); imshow(detectedImg);
     %     title(['frame no. ', num2str(ind)]);
     end
-    boxes{ii} = bbox;
+    boxes{ii}  = bbox;
     scores{ii} = score;
 %     vidTable.scores{ii} = score;
 end
