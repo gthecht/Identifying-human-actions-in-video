@@ -35,7 +35,7 @@ while length(unique(maxInd)) ~= length(maxInd) % if 2 boxes go to 1 box
         IOURep(maxInd(appear1), appear1) = -1;
         [IOUSort, Sortind] = sort(IOURep, 1, 'descend');
         IOUind = IOUind(Sortind);
-        maxInd = IOUind(2,:);
+        maxInd = IOUind(1,:); % It was 2 previously, and I think that's a bug!
     else       % the second one is smaller
         IOURep(maxInd(appear2), appear2) = -1;
         [IOUSort, IOUind] = sort(IOURep, 1, 'descend');

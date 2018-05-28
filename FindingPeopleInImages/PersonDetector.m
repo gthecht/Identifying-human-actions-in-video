@@ -44,9 +44,12 @@ fileName  = 'PersonDetectorWorkspace';
 path      = mfilename('fullpath');
 splitPath = strsplit(path, '\');
 direcPath = strjoin(splitPath(1:end-1), '\');
-filePath  = [direcPath, '\', 'tempSave'];
+% filePath  = [direcPath, '\', 'tempSave'];
+filePath  = 'D:\OneDrive\OneDrive - Technion\Courses\Project2\DataOutput\PeopleDetectorV2\Alex2Epochs';
 saveVars = {'bbox','confTable', 'existTable', 'FrameData', 'imgPerm', ...
     'label', 'labels', 'labelsName', 'layers', 'nTest', 'options', ...
     'outTable', 'RCNNModl', 'score', 'testOutcome', 'trainTable'};
-saved     = save2Temp(fileName, filePath, saveVars);
-
+% saved     = save2Temp(fileName, filePath, saveVars);
+saveName = [filePath, '\', fileName, '_', date];
+save(saveName, saveVars);
+done = 1;
