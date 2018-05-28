@@ -44,16 +44,16 @@ for kk = 1:20
 end
 hold off;
 % show with boxes:
-figure(2); hold on;
+% figure(2); hold on;
 for kk = 1:20
     img = FrameData.ReadFcn(testTable.names{imgPerm(kk)});
     pos = cell2mat([testTable{imgPerm(kk),2:end}]');
     actStr = [''];
     img = insertObjectAnnotation(img, 'rectangle', pos, actStr,...
-                'Color', {'cyan'}, 'FontSize', 12, 'Linewidth', 2);
-    subplot(4,5,kk);
-    imshow(img);
+                'Color', {'cyan'}, 'FontSize', 12, 'Linewidth', 4);
+%     subplot(4,5,kk);
+    figure(); imshow(img);
 end
-hold off;
+% hold off;
 end
 
