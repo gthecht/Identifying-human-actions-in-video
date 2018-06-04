@@ -12,12 +12,16 @@ function [] = surfTubletor(vidTable, k)
 %           scores:  Cell holding the scores for all the boxes, meaning how
 %                    sure the system is of each box. We won't use it right
 %                    now, but may add it later.
-frameNum = length(vidTable.boxes{1}); % number of frames in segment
+
+% vidTable for playing with the function: '55Ihr6uVIDA_15Min_boxTable.mat'
+% from the DataOutput\PeopleDetectorV2\Alex2Epochs\vid2BoxTables directory
+% int the OneDrive folder.
+frameNum = numel(vidTable.bbox); % number of frames in segment
 %% Read video:
 videoName  = vidTable.vidName{1};
 VR         = VideoReader(videoName); % make sure you are on the right path! D:\OneDrive\OneDrive - Technion\Courses\Project2\segments\exampleSegments
 % Table hodling the k+1 frames and the boxes, surf and features:
-kTable     = cell2table(cell(k+1, 4), 'VariableNames', {'frame', 'boxes', 'surf', 'features'});
+kTable     = cell2table(cell(k+1, 4), 'VariableNames', {'frame', 'boxes', 'surf', 'features', 'points'});
 for ii = 1 : k
     kTable = updatekTable(ii, kTable, VR, vidTable);
 end
