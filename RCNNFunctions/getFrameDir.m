@@ -5,8 +5,10 @@ hostName = getComputerName();
 switch hostName 
     case 'desktop-gloria' % Gilad's desktop
         frame_dir = 'D:\Projects\Project2_AVA\MiddleFrames\';
-    otherwise % Not finding any known name, we'll revert to the dok location
-        frame_dir = 'Z:\MiddleFrames\';
+    otherwise % Not finding any known name, we'll ask the location:
+        frame_dir = uigetdir('..', 'choose middle-frames directory');
+%         revert to the dok location
+%         frame_dir = 'Z:\MiddleFrames\';
 end
 end
 
