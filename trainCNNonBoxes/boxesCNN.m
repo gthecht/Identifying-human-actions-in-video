@@ -1,4 +1,4 @@
-%% Ronen and Gilad 15.02.18
+%% Ronen and Gilad 30.05.18
 % Running CNN on the labeled boxes of the middle-frames, in order to get a
 % vector to push into the RNN at the end.
 clear; clc;
@@ -24,9 +24,7 @@ options = trainingOptions('sgdm', ...
     'Plots','training-progress', ...
     'CheckpointPath', tempdir);
 tic
-CNNModl = trainNetwork(trainTable, layers, options, ...
-    'NegativeOverlapRange', [0 0.3], ...
-    'PositiveOverlapRange', [0.7,1], 'NumStrongestRegions', 2000)
+CNNModl = trainNetwork(trainTable, layers, options)
 disp('    --finished training');
 toc
 %% test:
