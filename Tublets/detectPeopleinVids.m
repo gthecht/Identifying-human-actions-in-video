@@ -1,12 +1,9 @@
 %% Ronen and Gilad 31.05.18
 % Create box tables for videos with people detector.
 clear; clc;
-<<<<<<< HEAD
 %% Choose RCNNModl:
-=======
 myGPU = gpuDevice;
 % Choose RCNNModl:
->>>>>>> Fixing smartgit on Gloria
 [detectorN, detectorP] = uigetfile('*.mat', 'Choose people detector RCNN model');
 load([detectorP,'\',detectorN]);
 peopleDetector = RCNNModl;
@@ -32,11 +29,7 @@ existBoxes = dirBoxCell(:,1);
 % Now that we have the names and path, we can start reading each video, 
 % creating a table for each, and saving it in the tablesdir.
 problem = zeros(length(vidNames));
-<<<<<<< HEAD
-parpool(2)
-=======
 % parpool(2)
->>>>>>> Fixing smartgit on Gloria
 parfor ii = 1 : length(vidNames)
 % for ii = 1 : length(vidNames)
     try
@@ -71,8 +64,6 @@ parfor ii = 1 : length(vidNames)
     catch ME
         problem(ii) = 1;
     end
-<<<<<<< HEAD
-=======
     [msgstr, msgid] = lastwarn;
     % If the last warning contains a CUDA_ERROR, than we want to pause a
     % moment.
@@ -82,5 +73,4 @@ parfor ii = 1 : length(vidNames)
         reset(myGPU);
         lastwarn('');
     end
->>>>>>> Fixing smartgit on Gloria
 end
