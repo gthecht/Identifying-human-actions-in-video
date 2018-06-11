@@ -30,7 +30,6 @@ existBoxes = dirBoxCell(:,1);
 % creating a table for each, and saving it in the tablesdir.
 problem = zeros(length(vidNames));
 % parpool(2)
-parpool(2)
 parfor ii = 1 : length(vidNames)
 % for ii = 1 : length(vidNames)
     try
