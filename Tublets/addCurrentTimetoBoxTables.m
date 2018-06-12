@@ -29,8 +29,9 @@ for ii = 1 : length(vidNames)
             vidFrame = readFrame(VR);
             boxTable.currentTime(ii) = VR.CurrentTime;
     end
-    % save new boxTable:
-    
+    % save new boxTable in saveDir:
+    boxTableName = boxTables{ii};
+    parsaveBoxTable(saveDir, boxTable,boxTableName);
 end
 
 
