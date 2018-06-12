@@ -1,5 +1,5 @@
 %% Ronen and Gilad 31.05.18
-% Create box tables for videos with people detector.
+% Create box tables for videos with people detector. without currentTime
 clear; clc;
 %% Choose RCNNModl:
 myGPU = gpuDevice;
