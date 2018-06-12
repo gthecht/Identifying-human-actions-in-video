@@ -24,16 +24,17 @@ for ii = 1 : length(vidNames)
     % Add currentTime variable:
     boxTable.currentTime = zeros(height(boxTable),1);
     VR = VideoReader([vidDir, '\', vidNames{ii}]);
+    ind = 0;
     while hasFrame(VR)
-            ind = ind+1;
+        ind = ind + 1;
             vidFrame = readFrame(VR);
-            boxTable.currentTime(ii) = VR.CurrentTime;
+            boxTable.currentTime(ind) = VR.CurrentTime;
     end
     % save new boxTable in saveDir:
     boxTableName = boxTables{ii};
     parsaveBoxTable(saveDir, boxTable,boxTableName);
 end
-
+beep; disp('    --Finished');
 
 
 
