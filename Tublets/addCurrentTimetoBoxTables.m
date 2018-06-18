@@ -17,9 +17,14 @@ vidNames    = cellfun(@(X) [X, '_15Min.mp4'], vidIDs, 'UniformOutput', false);
 vidDir      = uigetdir('..', 'get video directory with pruned vids');
 % And choose dir for final tables:
 saveDir     = uigetdir('..', 'choose directory for final tables');
+saveCell    = struct2cell(dir(saveDir))';
+existSaved  = saveCell(:,1);
 %% Run through videos and read current times:
 
 for ii = 1 : length(vidNames)
+    if sum(contains(existSaved, vidNames{ii}(1:11)))
+        continue
+    end
     load([boxTableDir,'\', boxTables{ii}]); % called boxTable
     % Add currentTime variable:
     boxTable.currentTime = zeros(height(boxTable),1);
