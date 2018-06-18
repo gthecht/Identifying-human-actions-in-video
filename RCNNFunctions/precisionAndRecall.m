@@ -14,7 +14,7 @@ for ii = 1:length(labelsName)
         outcomeLabel(pairsTable.Score < threshold(jj)) = 0;
         % Now we can plug this into the confusion matrix:
         confMat  = confusionmat(outcomeLabel,  testLabel, 'Order', [1,0]);
-        truePos  = confMat(1,1);
+        truePos  = confMat(1,1)+confMat(2,2);
         selected = confMat(1,2);
         relevent = confMat(2,1);
         precision(jj,ii)  = truePos ./ (truePos + selected);
@@ -22,6 +22,7 @@ for ii = 1:length(labelsName)
     end
 	% plot:
     plot(recall(:,ii), precision(:,ii), '-o');
+    text(recall(:,ii)+0.01, precision(:,ii), num2str(threshold'));
 end
 title(['Precision(recall) for threshold = [', num2str(threshold(1)),',',...
      num2str(threshold(end)), ']']);

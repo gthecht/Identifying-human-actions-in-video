@@ -56,7 +56,7 @@ try
             % Similarly for the real boxes column:
             if pairs(jj, 2) == 0
                 labelPairs{jj, 2} = 'background';
-                labelPairs{jj, 3} = 0;
+                labelPairs{jj, 3} = pairs(jj,3); % score for precision and recall
             else
                 labelPairs{jj, 2} = outcomeLabels{pairs(jj, 2)}; % outcomeLabels{pairs(jj, 2), :}
                 labelPairs{jj, 3} = pairs(jj,3);
