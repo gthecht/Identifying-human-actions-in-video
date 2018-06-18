@@ -1,4 +1,4 @@
-function [tubletLabelsTable] = createLabelsTableforTublets(labelIDs, dataTable)
+function [tubletLabelsTable] = createLabelsTableforTublets(labelIDs, dataTable, memberVid)
 % Gets a table of data (for instance trainTable from the csv), and extracts
 % a table of boxes for existing movies ordered in the following manner:
 % tubletLabelsTable = [videoID | middleFrameTimeStamp | boxes | actionLabels]
@@ -15,15 +15,9 @@ cleanDatTable = dataTable(ismember(dataTable.actionLabel, labelIDs),:);% = [];
 %% Get unique ID's of the dataTable:
 uniqIDs = unique(cleanDatTable.videoID); % ID's of the movies in dataTable.
 %% Getting the videos in the directory - to compare to those in the dataTable
-vidDir =  uigetdir('..', 'choose pruned_vids directory');
-cd(vidDir);
-vids = struct2cell(dir);
-vids = vids(1,:)'; % Names of files in vidDir
-% clean out '.' and '..':
-vids = vids(contains(vids, '.mp4'));
 % now we want the rows in the table that are only from videos we
 % have in our directory:
-containsVid    = cell2mat(cellfun(@(X) sum(contains(vids, X)) > 0, ...
+containsVid    = cell2mat(cellfun(@(X) sum(contains(memberVid, X)) > 0, ...
                             cleanDatTable.videoID, 'UniformOutput', false));
 existDataTable = cleanDatTable(containsVid,:); % this table has only the rows that exist.
 %% Now we want to change the box data:
@@ -37,7 +31,7 @@ tubletLabelsTable = table([],[],[],[], 'VariableNames', ...
 for ii = 1 : length(uniqIDs)
     currVid = uniqIDs{ii};
     % We'll check if the video is in our dir:
-    if sum(contains(vids, currVid)) == 0
+    if sum(contains(memberVid, currVid)) == 0
         continue
     end
     % So it exists and we can continue: (note that here it doesn't matter,
@@ -48,8 +42,6 @@ for ii = 1 : length(uniqIDs)
     tempTable  = SegmentData2Row(currTable);
     % Now we want to update the size of the box to pixel units. For that we
     % need the frame-size:
-    % We'll make sure we're in the right dir first:
-    cd(vidDir);
     VR = VideoReader([currVid,'.mp4']);
     FrameSize = [VR.Height, VR.Width];
     tempTable.boxes = cellfun(@(X) round(X.*[FrameSize, FrameSize]), ...
