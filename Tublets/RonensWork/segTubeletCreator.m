@@ -22,7 +22,7 @@ fps = v.FrameRate;
 H = v.Height;
 W = v.Width;
 N = size(currVidTable.middleFrameTimeStamp, 1);
-Tublets = cell(N, 1);
+tmpTublets = cell(N, 1);
 labels = cell(N, 1);
 Times = zeros(N, 3);
 thresh = 0.5;
@@ -83,7 +83,7 @@ for jj = 1:N
         end
     end
     
-    Tublets{jj - del} = currTublet;
+    tmpTublets{jj - del} = currTublet;
     
     % Equate the middle frame of the boxes we chose with the boxes in the
     % currVidTable for getting the label of the segment
@@ -96,7 +96,7 @@ for jj = 1:N
     if(midFlag == 4)
         while (midFlag == 4)
             if (c == length(deviation) + 1)
-                Tublets(jj - del) = [];
+                tmpTublets(jj - del) = [];
                 labels(jj - del) = [];
                 Times(jj - del, :) = [];
                 del = del + 1;
@@ -109,9 +109,9 @@ for jj = 1:N
                 [IOUval, labelInd] = max(labelIOU);
                 if (IOUval > 0.05)
                     labels{jj - del} = currVidTable.labels{jj}(labelInd);
-                    Times(jj - del, :) = [startT, realMidT, endT];
+                    Times(jj - del, :) = [startT, realMidT, endT] + downToZero;
                 else
-                    Tublets(jj - del) = [];
+                    tmpTublets(jj - del) = [];
                     labels(jj - del) = [];
                     Times(jj - del, :) = [];
                     del = del + 1;
@@ -124,17 +124,49 @@ for jj = 1:N
         [IOUval, labelInd] = max(labelIOU);
         if (IOUval > 0.05)
             labels{jj - del} = currVidTable.labels{jj}(labelInd);
-            Times(jj - del, :) = [startT, realMidT, endT];
+            Times(jj - del, :) = [startT, realMidT, endT] + downToZero;
         else
-            Tublets(jj - del) = [];
+            tmpTublets(jj - del) = [];
             labels(jj - del) = [];
             Times(jj - del, :) = [];
             del = del + 1;
         end
     end
-    
 end
 
+% Tublets = tmpTublets;
+
+N2 = size(labels, 1);
+Tublets = cell(N2, 1);
+
+for jj = 1:N2
+    Ton = Times(jj, 1);
+    Toff = Times(jj, 3);
+    v.CurrentTime = Ton;
+    currTublet = tmpTublets{jj};
+    segmentTublet = cell(fps, 1);
+    c = 1;
+%     while (v.CurrentTime <= Toff)
+    while (c < fps + 1)
+        currFrame = readFrame(v);
+        currBox = currTublet(c, :);
+        if (currBox == junkBox)
+            segmentTublet{c} = junkBox;
+            c = c + 1;
+            continue;
+        end
+        currBox(3:4) = currBox(3:4) + currBox(1:2) - 1;
+%         currBox(3) = currBox(3) + currBox(1);
+%         currBox(4) = currBox(4) + currBox(2);
+        rows = currBox(2):currBox(4);
+        cols = currBox(1):currBox(3);
+        relevantPart = currFrame(rows, cols, :);
+        resizedFrame = imresize(relevantPart, sz);
+        segmentTublet{c} = resizedFrame;
+        c = c + 1;
+    end
+    Tublets{jj} = segmentTublet;
+end
 
 
 end
