@@ -7,10 +7,10 @@ n = size(Tublets, 1);
 fps =  size(Tublets{1}, 1);
 featureMat = cell(n, 1);
 
-% % layersNames = {net.Layers.Name};
-% % ind = find(strcmp(layersNames, layer));
-% % sz = net.Layers(ind).OutputSize;
-sz = net.Layers(end).OutputSize;    % 'prob' layer doesnt have OutputSize.
+layersNames = {net.Layers.Name};
+ind = find(strcmp(layersNames, layer));
+sz = net.Layers(ind).OutputSize;
+% sz = net.Layers(end).OutputSize;    % 'prob' layer doesnt have OutputSize.
 junkBox = [0 0 1 1];
 
 for ii = 1:n

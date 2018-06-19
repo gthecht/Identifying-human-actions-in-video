@@ -38,8 +38,8 @@ addpath(boxes_dir);
 
 %% Creating the tublets and the deature vectors by VGG16
 
-% % layer = 'fc8';
-layer = 'prob';
+layer = 'fc8';
+% layer = 'prob';
 n = length(memberVid);
 Tublets = cell(n, 1);
 labels = cell(n, 1);
