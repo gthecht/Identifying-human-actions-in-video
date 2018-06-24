@@ -26,14 +26,14 @@ tmpTublets = cell(N, 1);
 labels = cell(N, 1);
 Times = zeros(N, 3);
 thresh = 0.5;
-downToZero = 900;
+downToZero = 900; % If you are using the full video. Otherwise:
 junkBox = [0 0 1 1];
 del = 0;
 
 % Optimize the boxes we choose
 for jj = 1:N
     
-    midT = currVidTable.middleFrameTimeStamp(jj) - downToZero;
+    midT = currVidTable.middleFrameTimeStamp(jj) - 900;
     [~, ind] = min(abs(maxBoxTable.currentTime - midT));
     segFrames = (ind - floor(fps/2)):(ind + ceil(fps/2) - 1);
     realMidT = maxBoxTable.currentTime(ind);
@@ -44,13 +44,14 @@ for jj = 1:N
     IOUvals = zeros(m);
     overThresh = zeros(m);
     currTublet = zeros(m, 4);
-    
+    % Now we calculate the IOU between every pair of boxes
     for kk = 1:m
         currBox = currMaxBoxes(kk, :);
         IOUvals(:, kk) = bboxOverlapRatio(currBox, currMaxBoxes);
-        overThresh(:, kk) = (IOUvals(:, kk) > thresh);
+        overThresh(:, kk) = (IOUvals(:, kk) > thresh); % All good neighbors have an IOu above the threshold
     end
-    
+    % Now we want the best frame whose box has the most IOU's above thresh,
+    % and we'll then save them as our tublet
     sumOverThresh = sum(overThresh);
     [~, boxInd] = max(sumOverThresh);
     if (length(boxInd) > 1)
@@ -60,7 +61,7 @@ for jj = 1:N
     end
     isGoodBox = overThresh(:, boxInd);
     
-    % Changing the irrelevant boxes with another boxes if possible
+    %% Changing the irrelevant boxes with other boxes if possible - to fit the best tublet:
     isBadBox = ~isGoodBox;
     [badInd, ~] = find(isBadBox);
     [goodInd, ~] = find(isGoodBox);
@@ -84,13 +85,17 @@ for jj = 1:N
     end
     
     tmpTublets{jj - del} = currTublet;
-    
+    % Now that we have the tublet, we want to know what label it has in the
+    % middle frame - this is for the training later on.
     % Equate the middle frame of the boxes we chose with the boxes in the
     % currVidTable for getting the label of the segment
     
     trainBoxes = cell2mat(currVidTable.boxes(jj));
     midBox = currTublet(ceil(fps/2), :);
     c = 1;
+    % if we got a junkbox in the middle frame, ten look at neighboring
+    % frames. If those are junk also, then the tublet (and the segment
+    % are bad).
     deviation = [-1 1 -2 2];
     midFlag = sum(midBox == junkBox);
     if(midFlag == 4)
@@ -134,8 +139,11 @@ for jj = 1:N
     end
 end
 
-% Tublets = tmpTublets;
-
+%% Tublets = tmpTublets;
+% Now we read the video-frames themselves, and save the parts inside the
+% tublet. In addition we resize it for the vgg. If there's a junkbox, it
+% remains a junkbox, and we won't run anything through the vgg. Instead the
+% output vector will be zeros(1000,1).
 N2 = size(labels, 1);
 Tublets = cell(N2, 1);
 
@@ -167,7 +175,5 @@ for jj = 1:N2
     end
     Tublets{jj} = segmentTublet;
 end
-
-
 end
 

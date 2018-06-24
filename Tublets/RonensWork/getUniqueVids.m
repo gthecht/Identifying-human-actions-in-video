@@ -1,5 +1,6 @@
-function [memberVid, existPruned, src_dir] = getUniqueVids(myTable)
-
+function [memberVid, src_dir] = getUniqueVids(myTable)
+% finds the videos in te table that exist in the directory we choose for
+% the vids.
 prompt     = 'Enter video directory';
 src_dir    = uigetdir(pwd, prompt);
 cd(src_dir);
@@ -11,11 +12,7 @@ notVids    = ismember(vids, '.') + ismember(vids, '..');
 vids       = vids(not(notVids));
 uniqVids   = unique(myTable.videoID);
 uniqVids   = cellfun(@(X) [X, '.mp4'], uniqVids, 'UniformOutput', false);
-memberVid  = uniqVids(ismember(uniqVids, vids));
-% memberStr  = uniqStr(ismember(uniqVids, vids));
-mkdir('../prunedVids'); %% places the segments in a directory right beside the whole videos.
-existPruned  = struct2cell(dir('../prunedVids'));
-existPruned  = existPruned(1,:)';
-
+uniqIDs    = strsplit([uniqVids{:}], '.mp4')';
+memberVid  = vids(contains(vids, uniqIDs));
 end
 

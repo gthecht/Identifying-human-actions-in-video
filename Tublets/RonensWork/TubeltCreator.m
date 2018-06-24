@@ -1,17 +1,4 @@
-%% Irrelevant
-% clear; clc;
-% %%
-% myTable = ExtractTableFromCSV();
-% [memberVid, existPruned, src_dir] = getUniqueVids(myTable);
-% %%
-% t = strsplit(memberVid{1}, '.');
-% t = t{1};
-% relTable = myTable(ismember(myTable.videoID, t), :);
-% %%
-% midT = relTable.middleFrameTimeStamp(1000);
-% [writeVid, fps] = extract1secSegments(memberVid, midT, src_dir);
-
-%%
+%% Ronen & Gilad, extracting tublets from boxTables, and passing them through vgg16 to get vectors.
 clear; clc;
 
 %% Add folders' path and getting the train table according to version 2.0
@@ -29,13 +16,15 @@ disp('Finished loaded VGG16!')
 
 % Create a unique table according to the middle frame time stamps
 labelsNum = 1:14;   % the poses numbers
-[memberVid, existPruned, src_dir] = getUniqueVids(myTable);
+[memberVid, src_dir] = getUniqueVids(myTable);
 tubletLabelsTable = createLabelsTableforTublets(labelsNum, myTable, memberVid);
 
 prompt = 'Enter 15 min boxTables directory';
 boxes_dir = uigetdir(pwd, prompt);
 addpath(boxes_dir);
-
+% adding directory in which to save the output
+saveDir = uigetdir(pwd, 'choose directory to save FC tables');
+addpath(saveDir);
 %% Creating the tublets and the deature vectors by VGG16
 
 layer = 'fc8';
@@ -49,7 +38,7 @@ featureMat = cell(n, 1);
 
 tic
 for ii = 1:n
-    
+    waitbar((ii-1) / n, ['video #', num2str(ii), ' out of ', num2str(n)]);
     vidName = strsplit(memberVid{ii}, '.');
     vidName = vidName{1};
     vidNames{ii} = vidName;
@@ -75,25 +64,11 @@ for ii = 1:n
     
     % Extract feature vector for each time stamp
     featureMat{ii} = getFeaturesFromNet(net, layer, Tublets{ii});
+    % extract 5x1000 matrix for FC training and save.
+    FCfeatureCell = cellfun(@(X) extractFCTrainingMat(X, fps), featureMat{ii}, 'UniformOutput', false);
+    saveFCFeature(FCfeatureCell, Times{ii}, labels{ii}, vidName, saveDir);
     disp('Feature matrices have been created')
-    
-    
 end
-
+% output is featureMat, which is a cell of cells
 disp('Finished! :)')
 toc
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
