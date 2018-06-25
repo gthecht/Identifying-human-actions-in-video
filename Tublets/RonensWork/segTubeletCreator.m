@@ -18,7 +18,7 @@ function [Tublets, labels, Times] = segTubeletCreator(boxTable,...
 %           labels - the labels of each tublet as a column vector cell.
 %           Times - the time stamps of each tublet as Nx3 matrix.
 
-fps = v.FrameRate;
+fps = round(v.FrameRate);
 H = v.Height;
 W = v.Width;
 N = size(currVidTable.middleFrameTimeStamp, 1);
