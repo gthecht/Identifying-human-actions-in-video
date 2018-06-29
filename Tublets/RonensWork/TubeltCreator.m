@@ -17,9 +17,9 @@ sz = net.Layers(1, 1).InputSize(1:2);
 % Create a unique table according to the middle frame time stamps
 labelsNum = 1:14;   % the poses numbers
 [memberVid, src_dir] = getUniqueVids(myTable);
-% tubletLabelsTable = createLabelsTableforTublets(labelsNum, myTable, memberVid);
-[fileN, fileP] = uigetfile('*.mat', 'get tubletLabelsTable from tublets directory');
-load([fileP, '\', fileN]);
+tubletLabelsTable = createLabelsTableforTublets(labelsNum, myTable, memberVid);
+% [fileN, fileP] = uigetfile('*.mat', 'get tubletLabelsTable from tublets directory');
+% load([fileP, '\', fileN]);
 
 prompt = 'Enter 15 min boxTables directory';
 boxes_dir = uigetdir(pwd, prompt);
@@ -42,7 +42,8 @@ n = length(memberVid);
 problem = zeros(n,1);
 % wb = waitbar(0 / n, ['video #', 0, ' out of ', num2str(n)]);
 tic
-for ii = 1:n
+% parpool(2);
+parfor ii = 1:n
     try
     %     waitbar((ii-1) / n, wb, ['video #', num2str(ii), ' out of ', num2str(n)]);
         vidName = strsplit(memberVid{ii}, '.');

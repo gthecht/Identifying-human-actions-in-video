@@ -13,6 +13,6 @@ vids       = vids(not(notVids));
 uniqVids   = unique(myTable.videoID);
 uniqVids   = cellfun(@(X) [X, '.mp4'], uniqVids, 'UniformOutput', false);
 uniqIDs    = strsplit([uniqVids{:}], '.mp4')';
-memberVid  = vids(contains(vids, uniqIDs));
+memberVid  = vids(contains(vids, uniqVids));
 end
 
