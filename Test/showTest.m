@@ -37,26 +37,29 @@ for ii = 1 : length(vidNames)
         ind = 0;
         bbox = cell(ceil(VR.FrameRate),1);
         score = cell(ceil(VR.FrameRate),1);
+        currTime = zeros(ceil(VR.FrameRate),1);
         while VR.CurrentTime < times(segsNum * (ii - 1) + tInd) + 1
             ind  = ind + 1;
             vidFrame = readFrame(VR);
             [currBbox, currScore, currLabel] = detect(peopleDetector, vidFrame);
             bbox{ind}  = currBbox;
             score{ind} = currScore;
+            currTime(ind) = VR.CurrentTime;
         end
-        boxTable = table(bbox, score, 'VariableNames', {'bbox', 'score'});
+        boxTable = table(bbox, score, currTime, 'VariableNames', {'bbox', 'score', 'currentTime'});
         segs.boxes{segsNum * (ii - 1) + tInd} = boxTable;
         % Create tublet:
         maxBoxTable = maxScoreFromboxTable(boxTable);
         [Tublets, ~] = segTubeletCreatorPresentation(boxTable,...
                                         maxBoxTable, VR, vggSz, times(segsNum * (ii - 1) + tInd), 1);
-        featureMat = getFeaturesFromNet(net, layer, Tublets);
-        segs.tublets{segsNum * (ii - 1) + tInd} = Tublets;
-        segs.featureVec{segsNum * (ii - 1) + tInd} = featureMat(:);
+        featureMat = getFeaturesFromNet(vggNet, layer, Tublets);
+        featureVec = extractFCTrainingMat(featureMat{1}, VR.FrameRate);
+        segs.tublets{segsNum * (ii - 1) + tInd} = Tublets{1};
+        segs.featureVec{segsNum * (ii - 1) + tInd} = featureVec(:);
         % And now for the classification
-        currPred = predict(classificationNet, featureMat);
-        [predScore, predLabel]  = max(validPred, [], 1);
-        segs.class = [classOrder(predLabel), predScore];
+        currPred = predict(classificationNet, featureVec(:));
+        [predScore, predLabel]  = max(currPred, [], 1);
+        segs.class{segsNum * (ii - 1) + tInd} = [classOrder(predLabel), predScore];
     end
 end
 %% Show output

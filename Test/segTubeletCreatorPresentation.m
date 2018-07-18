@@ -75,7 +75,7 @@ for kk = 1:sum(isBadBox)
 end
 
 tmpTublets{1} = currTublet;
-Times{1} = [startT, endT];
+Times(1,:) = [startT, endT];
 
 
 %% Tublets = tmpTublets;
