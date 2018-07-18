@@ -132,13 +132,6 @@ classificationNet = trainNetwork(balancedTMat, balancedTLab,FCLayers,options);
 classOrder = classificationNet.Layers(8,1).ClassNames;
 %% Test
 validPred = predict(classificationNet, balancedVMat);
-% validPred = predict(classificationNet, balancedTMat);
-% GTLabels = balancedTLab';
-% [predScore, predLabel]  = max(validPred, [], 1);
-% validLabs = categorical(predLabel');
-% confMat = confusionmat(validLabs, GTLabels, 'order', categorical(1:14));
-% confTable = array2table(confMat, 'VariableNames', confTLabs, 'RowNames', confTLabs);
-% compareTable = table(validLabs, GTLabels, 'VariableNames', {'Prediction', 'GroundTruth'});
 GTLabels = balancedVLab';
 [predScore, predLabel]  = max(validPred, [], 1);
 validLabs = categorical(classOrder(predLabel));
