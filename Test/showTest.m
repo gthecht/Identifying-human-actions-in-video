@@ -44,12 +44,12 @@ for ii = 1 : length(vidNames)
             bbox{ind}  = currBbox;
             score{ind} = currScore;
         end
-        segs.boxes{segsNum * (ii - 1) + tInd} = [bbox, score];
+        boxTable = table(bbox, score, 'VariableNames', {'bbox', 'score'});
+        segs.boxes{segsNum * (ii - 1) + tInd} = boxTable;
         % Create tublet:
-        boxTable = segs.boxes{segsNum * (ii - 1) + tInd};
         maxBoxTable = maxScoreFromboxTable(boxTable);
-        [Tublets, labels, Times] = segTubeletCreator(boxTable,...
-                                            maxBoxTable, currVidTable, VR, vggSz);
+        [Tublets, ~] = segTubeletCreatorPresentation(boxTable,...
+                                        maxBoxTable, VR, vggSz, times(segsNum * (ii - 1) + tInd), 1);
         featureMat = getFeaturesFromNet(net, layer, Tublets);
         segs.tublets{segsNum * (ii - 1) + tInd} = Tublets;
         segs.featureVec{segsNum * (ii - 1) + tInd} = featureMat(:);
