@@ -1,4 +1,4 @@
-function [Tublets, Times] = segTubeletCreatorPresentation(boxTable,...
+function [Tublets, tubletBoxes, Times] = segTubeletCreatorPresentation(boxTable,...
                                         maxBoxTable, v, sz, tStart, tLen)
 
 % input:    bboxTable - the whole table of boxes in the video v.
@@ -75,6 +75,7 @@ for kk = 1:sum(isBadBox)
 end
 
 tmpTublets{1} = currTublet;
+tubletBoxes = tmpTublets{1};
 Times(1,:) = [startT, endT];
 
 
@@ -91,7 +92,7 @@ v.CurrentTime = Ton;
 currTublet = tmpTublets{1};
 segmentTublet = cell(LastFrame - FirstFrame + 1, 1);    % NOT SURE ABOUT THE "+1" !
 c = 1;
-while (v.CurrentTime <= Toff)
+while and(v.hasFrame, v.CurrentTime <= Toff)
     currFrame = readFrame(v);
     currBox = currTublet(c, :);
     if (currBox == junkBox)
